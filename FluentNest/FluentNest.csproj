@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>9</LangVersion>
+        <Description>Fluent forwarded server.</Description>
+        <Authors>Shigenobu Furuta</Authors>
+        <PackageId>FluentNest</PackageId>
+        <PackageTags>fluent;fluentd;forward;forwarded</PackageTags>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/shigenobu/FluentNest.git</RepositoryUrl>
+        <Nullable>enable</Nullable>
+        <Version>0.0.1</Version>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="OrangeCabinet" Version="0.0.1" />
+      <PackageReference Include="PurpleSofa" Version="0.0.3" />
+    </ItemGroup>
+
+</Project>
