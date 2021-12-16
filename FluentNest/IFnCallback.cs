@@ -4,6 +4,6 @@ namespace FluentNest
 {
     public interface IFnCallback
     {
-        public void Receive(string tag, List<FnEntry> entries);
+        public void Receive(FnMessageForward msg);
     }
 }

@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  fluent:
+    build: ./docker/fluent
+    container_name: fn-fluent
+    image: fn-fluent:0.0.1
+    ports:
+      - 24224:24224

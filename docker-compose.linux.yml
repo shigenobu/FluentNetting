@@ -1,0 +1,18 @@
+version: '3'
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.102.0.0/16
+
+services:
+  fluent:
+    build: ./docker/fluent
+    container_name: fn-fluent
+    image: fn-fluent:0.0.1
+    ports:
+      - 24224:24224
+    extra_hosts:
+      - "host.docker.internal:172.102.0.1"

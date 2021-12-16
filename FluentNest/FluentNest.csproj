@@ -15,6 +15,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="MessagePack" Version="2.3.85" />
       <PackageReference Include="OrangeCabinet" Version="0.0.1" />
       <PackageReference Include="PurpleSofa" Version="0.0.3" />
     </ItemGroup>
