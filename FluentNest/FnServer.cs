@@ -96,7 +96,7 @@ namespace FluentNest
             File.WriteAllBytes("/home/furuta/02-development/rider/FluentNest/FluentNest/data.bin", message);
             
             Console.WriteLine(message.PxToString());
-            var msg = MessagePackSerializer.Deserialize<FnMessageForward>(message);
+            var msg = MessagePackSerializer.Deserialize<FnMsgpackForward>(message);
             Console.WriteLine($"{MessagePackSerializer.SerializeToJson(msg)}");
 
 

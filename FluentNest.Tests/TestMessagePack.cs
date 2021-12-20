@@ -2,6 +2,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading;
 using MessagePack;
 using MessagePack.Resolvers;
@@ -58,18 +59,18 @@ namespace FluentNest.Tests
 
             var entry = new FnMessageForwardEntry()
             {
-                Time = new FnMessageForwardEntryTime
-                {
-                    UnixNanoseconds = 123,
-                    // Ext = "ext"
-                },
-                Error = new FnMessageForwardEntryError()
-                {
-                    RetryTimes = 1,
-                    Records = 2,
-                    Error = "aaa",
-                    Message = "bbb"
-                }
+                // Time = new FnMessageForwardEntryTime
+                // {
+                //     UnixNanoseconds = 123,
+                //     // Ext = "ext"
+                // },
+                // Error = new FnMessageForwardEntryError()
+                // {
+                //     RetryTimes = 1,
+                //     Records = 2,
+                //     Error = "aaa",
+                //     Message = "bbb"
+                // }
             };
             _testOutputHelper.WriteLine(MessagePackSerializer.SerializeToJson(entry));
         }
@@ -83,10 +84,21 @@ namespace FluentNest.Tests
             _testOutputHelper.WriteLine(obj.Tag);
             // _testOutputHelper.WriteLine(obj.Entries.OxToString());
 
+            StringBuilder builder = new StringBuilder();
+            foreach (var b in obj.Entries)
+            {
+                builder.Append(b.ToString("X") + " ");
+            }
+            // _testOutputHelper.WriteLine(builder.ToString());
+            
             // var entries = MessagePackSerializer.Deserialize<dynamic>(obj.Entries, ContractlessStandardResolver.Options);
 
             var entries = Deserialize<FnMessageForwardEntry>(obj.Entries);
-            _testOutputHelper.WriteLine(MessagePackSerializer.SerializeToJson(entries));
+            foreach (var entry in entries)
+            {
+                _testOutputHelper.WriteLine(entry.ToString());
+            }
+
             
             // var entries = MessagePackSerializer.Deserialize<FnMessageForwardEntry[]>(obj.Entries);
             // _testOutputHelper.WriteLine(MessagePackSerializer.SerializeToJson(entries));
@@ -98,21 +110,53 @@ namespace FluentNest.Tests
 
         public List<T> Deserialize<T>(byte[] data)
         {
+            byte[] replaced = {0xd2, 0x00, 0x00, 0x00, 0x00};
+            
             var resolver = MessagePack.Resolvers.CompositeResolver.Create(
                 new[] { MessagePack.Formatters.TypelessFormatter.Instance },
                 new[] { MessagePack.Resolvers.StandardResolver.Instance });
-            
             var list = new List<T>();
             using (var reader = new MessagePackStreamReader(new MemoryStream(data)))
             {
                 while (reader.ReadAsync(CancellationToken.None).Result is { } msgpack)
                 {
-                    _testOutputHelper.WriteLine(MessagePackSerializer.ConvertToJson(msgpack));
-                    list.Add((T)MessagePackSerializer.Typeless.Deserialize(msgpack));
+                    // ReservedMessagePackExtensionTypeCode.
+
+                    // MessagePackReader r;
+                    //
+                    StringBuilder builder = new StringBuilder();
+                    foreach (var b in msgpack.ToArray())
+                    {
+                        builder.Append(b.ToString("X") + " ");
+                    }
+                    _testOutputHelper.WriteLine(builder.ToString());
+                    _testOutputHelper.WriteLine(msgpack.ToArray().OxToString());
+                    //
+                    var newBytes = Concat(Concat(msgpack.Slice(0, 1).ToArray(), replaced), msgpack.Slice(11).ToArray());
+                    StringBuilder builder2 = new StringBuilder();
+                    foreach (var b in newBytes)
+                    {
+                        builder2.Append(b.ToString("X") + " ");
+                    }
+                    _testOutputHelper.WriteLine(builder2.ToString());
+                    _testOutputHelper.WriteLine(newBytes.OxToString());
+                    
+                    // _testOutputHelper.WriteLine(MessagePackSerializer.ConvertToJson(msgpack));
+                    list.Add(MessagePackSerializer.Deserialize<T>(newBytes));
                 }
             }
 
             return list;
+        }
+        
+        static byte[] Concat(byte[] a, byte[] b)
+        {           
+            byte[] output = new byte[a.Length + b.Length];
+            for (int i = 0; i < a.Length; i++)
+                output[i] = a[i];
+            for (int j = 0; j < b.Length; j++)
+                output[a.Length+j] = b[j];
+            return output;           
         }
     }
 }
