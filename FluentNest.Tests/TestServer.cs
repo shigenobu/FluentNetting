@@ -26,7 +26,7 @@ namespace FluentNest.Tests
 
     public class TestCallback : IFnCallback
     {
-        public void Receive(FnMessageForward msg)
+        public void Receive(FnMessage msg)
         {
             
         }

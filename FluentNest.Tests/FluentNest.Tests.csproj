@@ -24,4 +24,10 @@
       <ProjectReference Include="..\FluentNest\FluentNest.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="data\error.bin">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

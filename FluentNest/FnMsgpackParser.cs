@@ -5,38 +5,24 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using MessagePack;
-using PurpleSofa;
 
 namespace FluentNest
 {
     internal class FnMsgpackParser
     {
-        private const string TmpStoredKey = "__fluentNestPartialMessage";
-        
-        internal FnMessage? Unpack(PsSession session, byte[] message)
+        internal FnMessage? Unpack(byte[] message)
         {
-            byte[] newMessage = Array.Empty<byte>();
-            var prevMessage = session.GetValue<byte[]>(TmpStoredKey);
-            if (prevMessage != null)
-            {
-                newMessage = prevMessage.FxConcat(prevMessage);
-            }
-            else
-            {
-                newMessage = message;
-            }
-
             try
             {
-                var serialized = MessagePackSerializer.Deserialize<FnMsgpackForward>(newMessage);
+                var serialized = MessagePackSerializer.Deserialize<FnMsgpackForward>(message);
                 var serializedEntries = Convert(serialized.Entries);
                 var entries = new List<FnMessageEntry>();
                 foreach (var serializedEntry in serializedEntries)
                 {
                     entries.Add(new FnMessageEntry()
                     {
-                        EventTime = DateTimeOffset.FromUnixTimeSeconds(serializedEntry.EventTime).DateTime,
-                        Records = serializedEntry.Record
+                        EventTime = DateTimeOffset.FromUnixTimeMilliseconds(serializedEntry.EventTime).DateTime,
+                        Record = serializedEntry.Record
                     });
                 }
 
@@ -48,8 +34,7 @@ namespace FluentNest
             }
             catch (Exception e)
             {
-                // TODO error type
-                session.SetValue(TmpStoredKey, newMessage);
+                throw;
             }
             
             return null;
@@ -69,12 +54,20 @@ namespace FluentNest
                         // 10 byte event time
                         int seconds = BitConverter.ToInt32(msgpack.Slice(3, 4).ToArray().Reverse().ToArray());
                         int nanoSeconds = BitConverter.ToInt32(msgpack.Slice(7, 4).ToArray().Reverse().ToArray());
-                        long unixSeconds = seconds + 1000 * nanoSeconds;
+                        long unixMilliSeconds = (long)seconds * 1000 + (long)nanoSeconds / 1000;
 
                         // replace byte array
                         var newMsgpack = msgpack.Slice(0, 1).ToArray()
-                            .FxConcat(BitConverter.GetBytes(unixSeconds))
+                            .FxConcat(new byte[]{0xd3})
+                            .FxConcat(BitConverter.GetBytes(unixMilliSeconds).Reverse().ToArray())
                             .FxConcat(msgpack.Slice(11).ToArray());
+                        
+                        // StringBuilder builder = new StringBuilder();
+                        // foreach (var b in newMsgpack.ToArray())
+                        // {
+                        //     builder.Append(b.ToString("X") + " ");
+                        // }
+                        // FnLogger.Debug(builder.ToString());
                         
                         // add
                         list.Add(MessagePackSerializer.Deserialize<FnMsgpackForwardEntry>(newMsgpack));

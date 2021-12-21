@@ -4,61 +4,61 @@ using MessagePack;
 namespace FluentNest
 {
     [MessagePackObject]
-    internal class FnMsgpackHelo
+    public class FnMsgpackHelo
     {
         [Key(0)]
-        internal string Type { get; } = "HELO";
+        public string Type { get; } = "HELO";
 
         [Key(1)]
-        internal FnMsgpackHeloOption Option { get; set; } = new();
+        public FnMsgpackHeloOption Option { get; set; } = new();
     }
     
     [MessagePackObject]
-    internal class FnMsgpackHeloOption
+    public class FnMsgpackHeloOption
     {
         [Key("nonce")]
-        internal string Nonce { get; set; } = null!;
+        public string Nonce { get; set; } = null!;
 
         [Key("auth")]
-        internal string Auth { get; set; } = string.Empty;
+        public string Auth { get; set; } = string.Empty;
 
         [Key("keepalive")]
-        internal bool Keepalive { get; set; } = true;
+        public bool Keepalive { get; set; } = true;
     }
 
     [MessagePackObject]
-    internal class FnMsgpackForward
+    public class FnMsgpackForward
     {
         [Key(0)]
-        internal string Tag { get; set; }
+        public string Tag { get; set; }
         
         [Key(1)]
-        internal byte[] Entries { get; set; }
+        public byte[] Entries { get; set; }
         
         [Key(2)]
-        internal FnMsgpackForwardOption? Option { get; set; }
+        public FnMsgpackForwardOption? Option { get; set; }
     }
     
     [MessagePackObject]
-    internal class FnMsgpackForwardEntry
+    public class FnMsgpackForwardEntry
     {
         [Key(0)]
-        internal long EventTime { get; set; }
+        public long EventTime { get; set; }
 
-        [Key(2)]
-        internal Dictionary<string, object> Record { get; set; }
+        [Key(1)]
+        public Dictionary<string, object> Record { get; set; }
     }
 
     [MessagePackObject]
-    internal class FnMsgpackForwardOption
+    public class FnMsgpackForwardOption
     {
         [Key("size")]
-        internal int? Size { get; set; }
+        public int? Size { get; set; }
 
         [Key("chunk")]
-        internal string? Chunk { get; set; }
+        public string? Chunk { get; set; }
         
         [Key("compressed")]
-        internal string? Compressed { get; set; }
+        public string? Compressed { get; set; }
     }
 }
