@@ -11,7 +11,7 @@ services:
   fluent:
     build: ./docker/fluent
     container_name: fn-fluent
-    image: fn-fluent:0.0.1
+    image: fn-fluent:0.1.0
     ports:
       - 24224:24224
     extra_hosts:

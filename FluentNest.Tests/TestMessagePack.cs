@@ -21,7 +21,7 @@ namespace FluentNest.Tests
         {
             var data = File.ReadAllBytes("data/error.bin");
 
-            var msg = new FnMsgpackParser().Unpack(data);
+            FnMsgpackParser.TryParse(data, out var msg);
             _testOutputHelper.WriteLine(msg.ToString());
         }
     }

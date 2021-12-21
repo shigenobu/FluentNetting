@@ -1,6 +1,6 @@
 namespace FluentNest
 {
-    public class FnServerSetting
+    public class FnSettingServer
     {
         public string BindHost { get; set; } = "0.0.0.0";
         
@@ -8,11 +8,13 @@ namespace FluentNest
         
         public int TcpBackLog { get; set; } = 1024;
 
-        public int TcpDivide { get; set; } = 3;
+        public int TcpDivide { get; set; } = 2;
 
-        public int TcpReadBufferSize { get; set; } = 8192;
+        public int TcpReadBufferSize { get; set; } = 1024 * 1024;
 
-        public int UdpDivide { get; set; } = 3;
+        public int TcpMaxStoredCount { get; set; } = 10;
+
+        public int UdpDivide { get; set; } = 2;
 
         public int UdpReadBufferSize { get; set; } = 32;
     }

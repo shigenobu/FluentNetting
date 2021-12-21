@@ -4,17 +4,17 @@ using MessagePack;
 namespace FluentNest
 {
     [MessagePackObject]
-    public class FnMsgpackHelo
+    public class FnMsgpackInHelo
     {
         [Key(0)]
         public string Type { get; } = "HELO";
 
         [Key(1)]
-        public FnMsgpackHeloOption Option { get; set; } = new();
+        public FnMsgpackInHeloOption Option { get; set; } = new();
     }
     
     [MessagePackObject]
-    public class FnMsgpackHeloOption
+    public class FnMsgpackInHeloOption
     {
         [Key("nonce")]
         public string Nonce { get; set; } = null!;
@@ -27,7 +27,23 @@ namespace FluentNest
     }
 
     [MessagePackObject]
-    public class FnMsgpackForward
+    public class FnMsgpackInMessageMode
+    {
+        [Key(0)]
+        public string Tag { get; set; }
+        
+        [Key(1)]
+        public byte[] EventTime { get; set; }
+        
+        [Key(2)]
+        public Dictionary<string, object> Record { get; set; }
+        
+        [Key(3)]
+        public FnMsgpackInOption? Option { get; set; }
+    }
+    
+    [MessagePackObject]
+    public class FnMsgpackInForwardMode
     {
         [Key(0)]
         public string Tag { get; set; }
@@ -36,11 +52,11 @@ namespace FluentNest
         public byte[] Entries { get; set; }
         
         [Key(2)]
-        public FnMsgpackForwardOption? Option { get; set; }
+        public FnMsgpackInOption? Option { get; set; }
     }
     
     [MessagePackObject]
-    public class FnMsgpackForwardEntry
+    public class FnMsgpackInEntry
     {
         [Key(0)]
         public long EventTime { get; set; }
@@ -50,7 +66,7 @@ namespace FluentNest
     }
 
     [MessagePackObject]
-    public class FnMsgpackForwardOption
+    public class FnMsgpackInOption
     {
         [Key("size")]
         public int? Size { get; set; }
@@ -60,5 +76,12 @@ namespace FluentNest
         
         [Key("compressed")]
         public string? Compressed { get; set; }
+    }
+
+    [MessagePackObject]
+    public class FnMsgpackOutAck
+    {
+        [Key("ack")]
+        public string Ack { get; set; }
     }
 }

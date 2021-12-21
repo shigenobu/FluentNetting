@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using OrangeCabinet;
 
@@ -53,6 +55,21 @@ namespace FluentNest
                 throw new FnExtensionException(e);
             }
         }
+
+        internal static string FxToHexString(this IEnumerable<byte> self)
+        {
+            var builder = new StringBuilder();
+            var sep = string.Empty;
+            foreach (var b in self.ToArray())
+            {
+                builder.Append(sep);
+                builder.Append(b.ToString("X"));
+                sep = " ";
+            }
+
+            return builder.ToString();
+        }
+        
         
         /// <summary>
         ///     Extension exception.
