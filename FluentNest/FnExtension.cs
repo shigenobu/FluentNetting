@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using OrangeCabinet;
 
@@ -69,8 +70,28 @@ namespace FluentNest
 
             return builder.ToString();
         }
-        
-        
+
+        internal static string FxSha512(this string src)
+        {
+            var data = Encoding.UTF8.GetBytes(src);
+            try
+            {
+                using var algorithm = SHA512.Create();
+                var hashBytes = algorithm.ComputeHash(data);
+ 
+                var builder = new StringBuilder();
+                foreach (var num in hashBytes)
+                    builder.Append(num.ToString("x2"));
+ 
+                return builder.ToString();
+            }
+            catch (Exception e)
+            {
+                FnLogger.Error(e);
+                throw new FnExtensionException(e);
+            }
+        }
+
         /// <summary>
         ///     Extension exception.
         /// </summary>

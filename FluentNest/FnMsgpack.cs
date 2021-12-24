@@ -4,17 +4,17 @@ using MessagePack;
 namespace FluentNest
 {
     [MessagePackObject]
-    public class FnMsgpackInHelo
+    public class FnMsgpackOutHelo
     {
         [Key(0)]
         public string Type { get; } = "HELO";
 
         [Key(1)]
-        public FnMsgpackInHeloOption Option { get; set; } = new();
+        public FnMsgpackOutHeloOption Option { get; set; } = new();
     }
     
     [MessagePackObject]
-    public class FnMsgpackInHeloOption
+    public class FnMsgpackOutHeloOption
     {
         [Key("nonce")]
         public string Nonce { get; set; } = null!;
@@ -26,6 +26,47 @@ namespace FluentNest
         public bool Keepalive { get; set; } = true;
     }
 
+    [MessagePackObject]
+    public class FnMsgpackInPing
+    {
+        [Key(0)]
+        public string Type { get; set; }
+        
+        [Key(1)]
+        public string ClientHostname { get; set; }
+        
+        [Key(2)]
+        public string ShareKeySalt { get; set; }
+        
+        [Key(3)]
+        public string ShareKeyHexdigest { get; set; }
+        
+        [Key(4)]
+        public string Username { get; set; }
+        
+        [Key(5)]
+        public string Password { get; set; }
+    }
+
+    [MessagePackObject]
+    public class FnMsgpackOutPong
+    {
+        [Key(0)]
+        public string Type { get; } = "PONG";
+        
+        [Key(1)]
+        public bool AuthResult { get; set; }
+        
+        [Key(2)]
+        public string Reason { get; set; }
+        
+        [Key(3)]
+        public string ServerHostname { get; set; }
+        
+        [Key(4)]
+        public string SharedKeyHexdigest { get; set; }
+    }
+    
     [MessagePackObject]
     public class FnMsgpackInMessageMode
     {
