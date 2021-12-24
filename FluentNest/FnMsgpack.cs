@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using FluentNest.Formatters;
 using MessagePack;
 
 namespace FluentNest
@@ -12,7 +14,7 @@ namespace FluentNest
         [Key(1)]
         public FnMsgpackOutHeloOption Option { get; set; } = new();
     }
-    
+
     [MessagePackObject]
     public class FnMsgpackOutHeloOption
     {
@@ -72,30 +74,30 @@ namespace FluentNest
     {
         [Key(0)]
         public string Tag { get; set; }
-        
+
         [Key(1)]
         public byte[] EventTime { get; set; }
-        
+
         [Key(2)]
         public Dictionary<string, object> Record { get; set; }
-        
+
         [Key(3)]
         public FnMsgpackInOption? Option { get; set; }
     }
-    
+
     [MessagePackObject]
     public class FnMsgpackInForwardMode
     {
         [Key(0)]
         public string Tag { get; set; }
-        
+
         [Key(1)]
         public byte[] Entries { get; set; }
-        
+
         [Key(2)]
         public FnMsgpackInOption? Option { get; set; }
     }
-    
+
     [MessagePackObject]
     public class FnMsgpackInEntry
     {
@@ -114,7 +116,7 @@ namespace FluentNest
 
         [Key("chunk")]
         public string? Chunk { get; set; }
-        
+
         [Key("compressed")]
         public string? Compressed { get; set; }
     }
@@ -124,5 +126,69 @@ namespace FluentNest
     {
         [Key("ack")]
         public string Ack { get; set; }
+    }
+
+    public abstract class BaseFnEventMode
+    {
+        [Key(0)]
+        public string Tag { get; set; }
+    }
+
+    [MessagePackObject]
+    public class FnMessageMode : BaseFnEventMode
+    {
+        [Key(1)]
+        [MessagePackFormatter(typeof(FnEventTimeFormatter))]
+        public DateTime EventTime { get; set; }
+        
+        [Key(2)]
+        public Dictionary<string, object> Record { get; set; }
+
+        [Key(3)]
+        public Dictionary<string, object>? Option { get; set; }
+    }
+
+    [MessagePackObject]
+    public class FnEntry
+    {
+        [Key(0)]
+        [MessagePackFormatter(typeof(FnEventTimeFormatter))]
+        public DateTime EventTime { get; set; }
+
+        [Key(1)]
+        public Dictionary<string, object> Record { get; set; }
+    }
+
+    [MessagePackObject]
+    public class FnForwardMode : BaseFnEventMode
+    {
+        [Key(1)]
+        public List<FnEntry> Entries { get; set; }
+
+        [Key(2)]
+        public Dictionary<string, object>? Option { get; set; }
+    }
+
+    [MessagePackObject]
+    public class FnPackedForwardMode : BaseFnEventMode
+    {
+        [Key(1)]
+        [MessagePackFormatter(typeof(FnEventStreamFormatter))]
+        public List<FnEntry> Entries { get; set; }
+
+        [Key(2)]
+        public Dictionary<string, object>? Option { get; set; }
+    }
+
+    [MessagePackObject]
+    public class FnCompressedPackedForwardMode : BaseFnEventMode
+    {
+        [Key(1)]
+        [MessagePackFormatter(typeof(FnCompressedEventStreamFormatter))]
+        public List<FnEntry> Entries { get; set; }
+
+        [Key(2)]
+        public Dictionary<string, object> Option { get; set; } =
+            new() { { "compressed", "gzip" } };
     }
 }

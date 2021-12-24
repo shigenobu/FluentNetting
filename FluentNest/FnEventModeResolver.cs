@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using FluentNest.Formatters;
 using MessagePack;
 using MessagePack.Formatters;
 
 namespace FluentNest
 {
-    public class FnEventTimeResolver : IFormatterResolver
+    public class FnEventModeResolver : IFormatterResolver
     {
-        public static readonly IFormatterResolver Instance = new FnEventTimeResolver();
+        public static readonly IFormatterResolver Instance = new FnEventModeResolver();
 
-        private FnEventTimeResolver()
+        private FnEventModeResolver()
         {
         }
 
@@ -24,16 +25,20 @@ namespace FluentNest
 
             static FormatterCache()
             {
-                Formatter = (IMessagePackFormatter<T>) FnEventTimeResolverGetFormatterHelper.GetFormatter(typeof(T));
+                Formatter = (IMessagePackFormatter<T>) FnEventModeResolverGetFormatterHelper.GetFormatter(typeof(T));
             }
         }
     }
 
-    internal static class FnEventTimeResolverGetFormatterHelper
+    internal static class FnEventModeResolverGetFormatterHelper
     {
         static readonly Dictionary<Type, object> formatterMap = new Dictionary<Type, object>()
         {
-            { typeof(object), new FnEventTimeFormatter() }
+            { typeof(BaseFnEventMode), new FnEventModeFormatter() },
+            { typeof(FnMessageMode), new FnMessageModeFormatter() },
+            { typeof(FnForwardMode), new FnForwardModeFormatter() },
+            { typeof(FnPackedForwardMode), new FnPackedForwardModeFormatter() },
+            { typeof(FnCompressedPackedForwardMode), new FnCompressedPackedForwardFormatter() }
         };
 
         internal static object GetFormatter(Type t)
