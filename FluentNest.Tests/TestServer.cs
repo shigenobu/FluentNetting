@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Formats.Asn1;
+using System.Linq;
 using OrangeCabinet;
 using PurpleSofa;
 using Xunit;
@@ -26,8 +27,8 @@ namespace FluentNest.Tests
             {
                 Config = new FnConfig
                 {
-                    Nonce = "ABC",
-                    SharedKey = "0123456789"
+                    // Nonce = "ABC",
+                    // SharedKey = "0123456789"
                 },
                 SettingClient = new FnSettingClient(),
                 SettingServer = new FnSettingServer()
@@ -41,7 +42,7 @@ namespace FluentNest.Tests
     {
         public void Receive(string tag, List<FnMessageEntry> entries)
         {
-            FnLogger.Debug($"tag:{tag}, entries:{entries}");
+            FnLogger.Debug($"tag:{tag}, entries:[{string.Join(", ", entries.Select(e => e.ToString()))}]");
         }
     }
 }
