@@ -7,3 +7,9 @@ services:
     image: fn-fluent:0.1.0
     ports:
       - 24224:24224
+  fluent-bit:
+    build: ./docker/fluent-bit
+    container_name: fn-fluent-bit
+    image: fn-fluent-bit:0.1.0
+    ports:
+      - 24225:24225
