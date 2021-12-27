@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using MessagePack;
 using OrangeCabinet;
 using PurpleSofa;
@@ -194,19 +195,19 @@ namespace FluentNest
             session.ClearValue(TmpStoredCount);
             
             // callback
-            try
+            if (msg!.Entries != null && msg.Entries.Any())
             {
-                // receive
-                _callback.Receive(msg!);
+                try
+                {
+                    // receive
+                    _callback.Receive(msg.Tag, msg.Entries);
+                }
+                catch (Exception e)
+                {
+                    FnLogger.Error(e);
+                }    
             }
-            catch (Exception e)
-            {
-                FnLogger.Error(e);
 
-                // error
-                _callback.Error(e, msg!);
-            }
-            
             // send ack
             if (_config.RequireAck && msg is {Option: {Chunk: { }}})
             {

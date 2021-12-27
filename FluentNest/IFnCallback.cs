@@ -6,10 +6,6 @@ namespace FluentNest
 {
     public interface IFnCallback
     {
-        public void Receive(FnMessage msg);
-
-        public virtual void Error(Exception e, FnMessage msg)
-        {
-        }
+        public void Receive(string tag, List<FnMessageEntry> entries);
     }
 }

@@ -39,14 +39,9 @@ namespace FluentNest.Tests
 
     public class TestCallback : IFnCallback
     {
-        public void Receive(FnMessage msg)
+        public void Receive(string tag, List<FnMessageEntry> entries)
         {
-            FnLogger.Debug(msg);
-        }
-
-        public void Error(Exception e, FnMessage msg)
-        {
-            FnLogger.Error(e);
+            FnLogger.Debug($"tag:{tag}, entries:{entries}");
         }
     }
 }
