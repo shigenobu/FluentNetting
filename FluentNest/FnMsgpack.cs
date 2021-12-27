@@ -139,7 +139,7 @@ namespace FluentNest
     {
         [Key(1)]
         [MessagePackFormatter(typeof(FnEventTimeFormatter))]
-        public DateTime EventTime { get; set; }
+        public DateTimeOffset EventTime { get; set; }
 
         [Key(2)]
         public Dictionary<string, object> Record { get; set; }
@@ -195,7 +195,7 @@ namespace FluentNest
     {
         [Key(0)]
         [MessagePackFormatter(typeof(FnEventTimeFormatter))]
-        public DateTime EventTime { get; set; }
+        public DateTimeOffset EventTime { get; set; }
 
         [Key(1)]
         public Dictionary<string, object> Record { get; set; }

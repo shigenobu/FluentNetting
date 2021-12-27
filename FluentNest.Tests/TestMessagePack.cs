@@ -81,7 +81,7 @@ namespace FluentNest.Tests
             var mode = new FnMessageMode()
             {
                 Tag = "tag.name",
-                EventTime = new DateTime(2020, 1, 2, 3, 4, 5, 123).AddTicks(4567),
+                EventTime = new DateTimeOffset(2020, 1, 2, 3, 4, 5, 123, TimeSpan.Zero).AddTicks(4567),
                 Record = new Dictionary<string, object> { { "message", "foo" } }
             };
 
@@ -115,7 +115,7 @@ namespace FluentNest.Tests
             var entries = new List<FnEntry>();
             var entry = new FnEntry
             {
-                EventTime = new DateTime(2020, 1, 2, 3, 4, 5, 123).AddTicks(4567),
+                EventTime = new DateTimeOffset(2020, 1, 2, 3, 4, 5, 123, TimeSpan.Zero).AddTicks(4567),
                 Record = new Dictionary<string, object> { { "message", "foo" } }
             };
             entries.Add(entry);
@@ -159,7 +159,7 @@ namespace FluentNest.Tests
             var entries = new List<FnEntry>();
             var entry = new FnEntry
             {
-                EventTime = new DateTime(2020, 1, 2, 3, 4, 5, 123).AddTicks(4567),
+                EventTime = new DateTimeOffset(2020, 1, 2, 3, 4, 5, 123, TimeSpan.Zero).AddTicks(4567),
                 Record = new Dictionary<string, object> { { "message", "foo" } }
             };
             entries.Add(entry);
@@ -204,7 +204,7 @@ namespace FluentNest.Tests
             var entries = new List<FnEntry>();
             var entry = new FnEntry
             {
-                EventTime = new DateTime(2020, 1, 2, 3, 4, 5, 123).AddTicks(4567),
+                EventTime = new DateTimeOffset(2020, 1, 2, 3, 4, 5, 123, TimeSpan.Zero).AddTicks(4567),
                 Record = new Dictionary<string, object> { { "message", "foo" } }
             };
             entries.Add(entry);

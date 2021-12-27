@@ -6,24 +6,18 @@ using MessagePack.Formatters;
 
 namespace FluentNest.Formatters
 {
-    public class FnEventTimeFormatter : IMessagePackFormatter<DateTime>
+    public class FnEventTimeFormatter : IMessagePackFormatter<DateTimeOffset>
     {
-
-        public void Serialize(ref MessagePackWriter writer, DateTime value, MessagePackSerializerOptions options)
+        public void Serialize(ref MessagePackWriter writer, DateTimeOffset value, MessagePackSerializerOptions options)
         {
             // Timestamp spec
             // https://github.com/fluent/fluentd/wiki/Forward-Protocol-Specification-v1#eventtime-ext-format
             // FixExt8(0) => seconds + nanoseconds | [1970-01-01 00:00:00.000000000 UTC, 2106-02-07T06:28:19.2949672 UTC) range
             // Reference implementation
             // https://github.com/neuecc/MessagePack-CSharp/blob/ffc18319670d49246db1abbd05c404a820280776/src/MessagePack.UnityClient/Assets/Scripts/MessagePack/MessagePackWriter.cs#L621
-            if (value.Kind == DateTimeKind.Local)
-            {
-                value = value.ToUniversalTime();
-            }
-
-            var secondsSinceBclEpoch = value.Ticks / TimeSpan.TicksPerSecond;
+            var secondsSinceBclEpoch = value.UtcTicks / TimeSpan.TicksPerSecond;
             var seconds = secondsSinceBclEpoch - DateTimeConstants.BclSecondsAtUnixEpoch;
-            var nanoseconds = (value.Ticks % TimeSpan.TicksPerSecond) * DateTimeConstants.NanosecondsPerTick;
+            var nanoseconds = (value.UtcTicks % TimeSpan.TicksPerSecond) * DateTimeConstants.NanosecondsPerTick;
 
             var data64 = unchecked((ulong) ((seconds << 32) | nanoseconds));
             Span<byte> span = writer.GetSpan(10);
@@ -50,7 +44,7 @@ namespace FluentNest.Formatters
         }
 
         // https://github.com/neuecc/MessagePack-CSharp/blob/847c581d7a9ff98284eb609014627126777dacf5/src/MessagePack.UnityClient/Assets/Scripts/MessagePack/Formatters/TypelessFormatter.cs#L217
-        public DateTime Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
+        public DateTimeOffset Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
             if (reader.IsNil)
             {
@@ -60,7 +54,7 @@ namespace FluentNest.Formatters
             switch (reader.NextMessagePackType)
             {
                 case MessagePackType.Integer:
-                    return DateTimeConstants.UnixEpoch.AddSeconds(reader.ReadDouble());
+                    return DateTimeOffset.UnixEpoch.AddSeconds(reader.ReadDouble());
                 case MessagePackType.Extension:
                 {
                     if (reader.NextCode is MessagePackCode.FixExt8 or MessagePackCode.Ext8)
@@ -80,7 +74,7 @@ namespace FluentNest.Formatters
                                 BinaryPrimitives.ReverseEndianness(
                                     BitConverter.ToUInt32(readOnlySequence.Slice(4, 4).ToArray()));
 
-                            return DateTimeConstants.UnixEpoch.AddSeconds(seconds)
+                            return DateTimeOffset.UnixEpoch.AddSeconds(seconds)
                                 .AddTicks(nanoseconds / DateTimeConstants.NanosecondsPerTick);
                         }
                     }
