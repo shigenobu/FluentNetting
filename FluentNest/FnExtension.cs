@@ -7,8 +7,17 @@ using OrangeCabinet;
 
 namespace FluentNest
 {
+    /// <summary>
+    ///     Extension.
+    /// </summary>
     internal static class FnExtension
     {
+        /// <summary>
+        ///     Concat byte array.
+        /// </summary>
+        /// <param name="self">byte array</param>
+        /// <param name="additional">additional byte array</param>
+        /// <returns></returns>
         internal static byte[] FxConcat(this byte[] self, byte[] additional)
         {
             var output = new byte[self.Length + additional.Length];
@@ -57,6 +66,11 @@ namespace FluentNest
             }
         }
 
+        /// <summary>
+        ///     Byte array to hex strings.
+        /// </summary>
+        /// <param name="self">byte array</param>
+        /// <returns>hex strings</returns>
         internal static string FxToHexString(this IEnumerable<byte> self)
         {
             var builder = new StringBuilder();
@@ -71,6 +85,12 @@ namespace FluentNest
             return builder.ToString();
         }
 
+        /// <summary>
+        ///     Crypt string to sha512 string.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <returns></returns>
+        /// <exception cref="FnExtensionException"></exception>
         internal static string FxSha512(this string src)
         {
             var data = Encoding.UTF8.GetBytes(src);

@@ -7,12 +7,12 @@ using System.Threading;
 namespace FluentNest
 {
     /// <summary>
-    ///     logger.
+    ///     Logger.
     /// </summary>
     public static class FnLogger
     {
         /// <summary>
-        ///     log writer.
+        ///     Log writer.
         ///     Default is stdout writer.
         ///     If set to null, no logging.
         /// </summary>
