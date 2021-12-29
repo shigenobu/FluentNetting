@@ -27,8 +27,8 @@ namespace FluentNest.Tests
             {
                 Config = new FnConfig
                 {
-                    // Nonce = "ABC",
-                    // SharedKey = "0123456789"
+                    Nonce = "ABC",
+                    SharedKey = "0123456789"
                 },
                 SettingClient = new FnSettingClient(),
                 SettingServer = new FnSettingServer()

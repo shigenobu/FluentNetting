@@ -230,13 +230,12 @@ namespace FluentNest
                         session.SetValue(AuthorizedKey, authResult);
 
                         // handshake - send PONG
-                        var hash = $"{ping.ShareKeySalt}{_config.ServerHostname}{_config.Nonce}{_config.SharedKey}";
                         var pong = new FnMsgpackOutPong()
                         {
                             AuthResult = authResult,
                             ServerHostname = _config.ServerHostname,
                             Reason = reason,
-                            SharedKeyHexdigest = hash.FxSha512()
+                            SharedKeyHexdigest = _config.CreateDigest(ping)
                         };
                         session.Send(MessagePackSerializer.Serialize(pong));
                         FnLogger.Debug(() => $"Send 'PONG': {MessagePackSerializer.SerializeToJson(pong)}");

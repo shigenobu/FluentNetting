@@ -1,21 +1,33 @@
 using System;
-using System.Buffers;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
 using MessagePack;
 using MessagePack.Resolvers;
 
 namespace FluentNest
 {
-    internal class FnMsgpackParser
+    /// <summary>
+    ///     Parser.
+    /// </summary>
+    internal static class FnMsgpackParser
     {
+        /// <summary>
+        ///     Resolver.
+        /// </summary>
         private static readonly IFormatterResolver Resolver = CompositeResolver.Create(
             FnEventModeResolver.Instance,
             StandardResolver.Instance
         );
         
+        /// <summary>
+        ///     Try parse for 4 modes.
+        ///     * message mode
+        ///     * forward mode
+        ///     * packed forward mode
+        ///     * compressed packed forward mode
+        /// </summary>
+        /// <param name="message">message</param>
+        /// <param name="msg">out FnMessage object</param>
+        /// <returns>If parsed success, return true</returns>
         internal static bool TryParse(byte[] message, out FnMessage? msg)
         {
             FnLogger.Debug(() => $"TryParse: {message.FxToHexString()}");
@@ -108,6 +120,7 @@ namespace FluentNest
             catch (Exception e)
             {
                 FnLogger.Debug(() => $"Parsed error: {message.FxToString()}");
+                FnLogger.Debug(() => e);
             }
 
             // deinit

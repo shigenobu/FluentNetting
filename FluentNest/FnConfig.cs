@@ -44,7 +44,7 @@ namespace FluentNest
         ///     If 'ShareKey' and 'Nonce' is not null, return true.
         /// </summary>
         /// <returns>'ShareKey' and 'Nonce' is not null, return true.</returns>
-        public bool EnableAuthorization()
+        internal bool EnableAuthorization()
         {
             return !string.IsNullOrEmpty(SharedKey) && !string.IsNullOrEmpty(Nonce);
         }
@@ -54,12 +54,24 @@ namespace FluentNest
         ///     If Authorization enable, used by check digest.
         /// </summary>
         /// <param name="ping">ping</param>
-        /// <returns>client digest and server digest is equal to, return true</returns>
-        public bool CheckDigest(FnMsgpackInPing ping)
+        /// <returns>client digest is equal to server digest , return true</returns>
+        internal bool CheckDigest(FnMsgpackInPing ping)
         {
             var src = $"{ping.ShareKeySalt}{ping.ClientHostname}{Nonce}{SharedKey}";
             var digest = src.FxSha512();
             return digest.Equals(ping.ShareKeyHexdigest);
+        }
+
+        /// <summary>
+        ///     Create digest.
+        ///     If Authorization enable, used by create digest.
+        /// </summary>
+        /// <param name="ping">ping</param>
+        /// <returns>server created digest</returns>
+        internal string CreateDigest(FnMsgpackInPing ping)
+        {
+            var hash = $"{ping.ShareKeySalt}{ServerHostname}{Nonce}{SharedKey}";
+            return hash.FxSha512();
         }
     }
 }
