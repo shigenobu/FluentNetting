@@ -1,4 +1,4 @@
-﻿FROM fluent/fluent-bit:1.8.11 as builder
+FROM fluent/fluent-bit:1.8.11 as builder
 
 FROM amd64/debian:10.11-slim
 
@@ -68,7 +68,7 @@ RUN echo "ja_JP.UTF-8 UTF-8" > /etc/locale.gen && \
 #USER fluent
 
 # copy configuration
-COPY ./etc/fluent-bit.conf /fluent-bit/etc/fluent.conf
+COPY ./etc/fluent-bit.conf /fluent-bit/etc/fluent-bit.conf
 
 #
 EXPOSE 2020
