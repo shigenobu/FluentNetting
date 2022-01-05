@@ -15,7 +15,7 @@ namespace FluentNest
         ///     Callback.
         /// </summary>
         private readonly IFnCallback _callback;
-        
+
         /// <summary>
         ///     Tcp server.
         /// </summary>
@@ -32,13 +32,13 @@ namespace FluentNest
         ///     If not set, used by default config.
         /// </summary>
         public FnConfig? Config { get; set; }
-        
+
         /// <summary>
         ///     Setting server.
         ///     If not set, used by default server setting.
         /// </summary>
         public FnSettingServer? SettingServer { get; set; }
-        
+
         /// <summary>
         ///     Setting client.
         ///     If not set, used by default client setting.
@@ -53,7 +53,7 @@ namespace FluentNest
         {
             _callback = callback;
         }
-        
+
         /// <summary>
         ///     Start.
         /// </summary>
@@ -61,10 +61,10 @@ namespace FluentNest
         {
             // config
             Config ??= new FnConfig();
-            
+
             // server setting
             SettingServer ??= new FnSettingServer();
-            
+
             // config
             SettingClient ??= new FnSettingClient();
 
@@ -78,7 +78,7 @@ namespace FluentNest
                 ReadBufferSize = SettingServer.TcpReadBufferSize
             };
             _tcpServer.Start();
-            
+
             // udp server
             _udpServer ??= new OcLocal(new OcBinder(new FnUdpCallback(Config, SettingClient))
             {
@@ -89,7 +89,7 @@ namespace FluentNest
             });
             _udpServer.Start();
         }
-        
+
         /// <summary>
         ///     Wait for.
         /// </summary>
@@ -118,12 +118,12 @@ namespace FluentNest
         ///     Stored key for tcp divide message.
         /// </summary>
         private const string TmpStoredKey = "__tmpStoredKey";
-        
+
         /// <summary>
         ///     Stored key for tcp divide count of message.
         /// </summary>
         private const string TmpStoredCount = "__tmpStoredCount";
-        
+
         /// <summary>
         ///     Authorized key, if 'security' section used.
         /// </summary>
@@ -133,12 +133,12 @@ namespace FluentNest
         ///     Config.
         /// </summary>
         private readonly FnConfig _config;
-        
+
         /// <summary>
         ///     Setting server.
         /// </summary>
         private readonly FnSettingServer _settingServer;
-        
+
         /// <summary>
         ///     Setting client.
         /// </summary>
@@ -148,7 +148,7 @@ namespace FluentNest
         ///     Callback.
         /// </summary>
         private readonly IFnCallback _callback;
-        
+
         /// <summary>
         ///     Constructor.
         /// </summary>
@@ -173,16 +173,17 @@ namespace FluentNest
         {
             // timeout
             session.ChangeIdleMilliSeconds(_settingClient.TcpTimeout * 1000);
-            
+
             // authorization
             if (_config.EnableAuthorization())
             {
                 // handshake - send HELO
-                var helo = new FnMsgpackOutHelo();
-                helo.Option.Nonce = _config.Nonce!;
-                helo.Option.Keepalive = _config.KeepAlive;
+                // var helo = new FnMsgpackOutHelo();
+                // helo.Option.Nonce = _config.Nonce!;
+                // helo.Option.Keepalive = _config.KeepAlive;
+                var helo = new FnMsgpackOutHelo2(_config.Nonce!, null, _config.KeepAlive);
                 FnLogger.Debug(() => $"Send 'HELO': {MessagePackSerializer.SerializeToJson(helo)}");
-                session.Send(MessagePackSerializer.Serialize(helo));    
+                session.Send(MessagePackSerializer.Serialize(helo));
             }
         }
 
@@ -195,7 +196,7 @@ namespace FluentNest
         {
             // get stored count from session
             int storedCount = session.GetValue<int>(TmpStoredCount);
-            
+
             // get stored message from session
             var newMessage = session.GetValue<byte[]>(TmpStoredKey);
             if (newMessage != null)
@@ -214,19 +215,20 @@ namespace FluentNest
                         // handshake - receive PING
                         var ping = MessagePackSerializer.Deserialize<FnMsgpackInPing>(message);
                         FnLogger.Debug(() => $"Read 'PING': {MessagePackSerializer.SerializeToJson(ping)}");
-                
+
                         // clear session
                         session.ClearValue(TmpStoredKey);
                         session.ClearValue(TmpStoredCount);
-                        
+
                         // check digest
                         var authResult = true;
                         var reason = string.Empty;
-                        if (!_config.CheckDigest(ping))
+                        if (!_config.CheckDigest(message))
                         {
                             authResult = false;
                             reason = "Illegal";
                         }
+
                         session.SetValue(AuthorizedKey, authResult);
 
                         // handshake - send PONG
@@ -239,40 +241,49 @@ namespace FluentNest
                         };
                         session.Send(MessagePackSerializer.Serialize(pong));
                         FnLogger.Debug(() => $"Send 'PONG': {MessagePackSerializer.SerializeToJson(pong)}");
+
+                        // handshake - keep connection or disconnect
+                        if (!authResult)
+                        {
+                            session.Close();
+                        }
                     }
                     catch (Exception e)
                     {
                         FnLogger.Debug(e);
-                        
+
                         // stored to session
-                        session.SetValue(TmpStoredKey, message);
-                        session.SetValue(TmpStoredCount, ++storedCount);
+                        // session.SetValue(TmpStoredKey, message);
+                        // session.SetValue(TmpStoredCount, ++storedCount);
+
+                        session.Close();
                     }
+
                     return;
                 }
             }
-            
+
             // receive message
             if (!FnMsgpackParser.TryParse(message, out var msg))
             {
                 // stored to session
                 session.SetValue(TmpStoredKey, message);
                 session.SetValue(TmpStoredCount, ++storedCount);
-                
+
                 // clear session
                 if (storedCount > _settingServer.TcpMaxStoredCount)
                 {
                     session.ClearValue(TmpStoredKey);
                     session.ClearValue(TmpStoredCount);
                 }
-                
+
                 return;
             }
-            
+
             // clear session
             session.ClearValue(TmpStoredKey);
             session.ClearValue(TmpStoredCount);
-            
+
             // callback
             if (msg!.Entries != null && msg.Entries.Any())
             {
@@ -284,11 +295,11 @@ namespace FluentNest
                 catch (Exception e)
                 {
                     FnLogger.Error(e);
-                }    
+                }
             }
 
             // send ack
-            if (_config.RequireAck && msg is {Option: {Chunk: { }}})
+            if (_config.RequireAck && msg is { Option: { Chunk: { } } })
             {
                 try
                 {
@@ -326,12 +337,12 @@ namespace FluentNest
         ///     Config.
         /// </summary>
         private readonly FnConfig _config;
-        
+
         /// <summary>
         ///     Setting client.
         /// </summary>
         private readonly FnSettingClient _settingClient;
-        
+
         /// <summary>
         ///     Constructor.
         /// </summary>
@@ -352,7 +363,7 @@ namespace FluentNest
         {
             // timeout
             remote.ChangeIdleMilliSeconds(_settingClient.UdpTimeout * 1000);
-            
+
             // heartbeat - receive MAY
             if (message.Length == 0 || message[0] != 0x00)
             {

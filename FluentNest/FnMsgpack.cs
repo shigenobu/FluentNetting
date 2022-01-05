@@ -6,6 +6,78 @@ using MessagePack;
 namespace FluentNest
 {
     [MessagePackObject]
+    public class FnMsgpackOutHelo2
+    {
+        [Key(0)]
+        public string Type { get; } = "HELO";
+
+        [Key(1)]
+        public Dictionary<string, object> Option { get; set; } = new();
+
+        [SerializationConstructor]
+        public FnMsgpackOutHelo2()
+        {
+        }
+
+        public FnMsgpackOutHelo2(string nonce, string? auth, bool keepalive)
+        {
+            Nonce = nonce;
+            if (!string.IsNullOrEmpty(auth))
+            {
+                // In Fluent Bit, if set some value (include null or empty string), then password that is in PING message is not empty string.
+                Auth = auth;
+            }
+
+            Keepalive = keepalive;
+        }
+
+        [IgnoreMember]
+        public string Nonce
+        {
+            get
+            {
+                if (Option.TryGetValue("nonce", out var val))
+                {
+                    return (string) val;
+                }
+
+                return string.Empty;
+            }
+            set => Option["nonce"] = value;
+        }
+
+        [IgnoreMember]
+        public string Auth
+        {
+            get
+            {
+                if (Option.TryGetValue("auth", out var val))
+                {
+                    return (string) val;
+                }
+
+                return string.Empty;
+            }
+            set => Option["auth"] = value;
+        }
+
+        [IgnoreMember]
+        public bool Keepalive
+        {
+            get
+            {
+                if (Option.TryGetValue("keepalive", out var val))
+                {
+                    return (bool) val;
+                }
+
+                return true;
+            }
+            set => Option["keepalive"] = value;
+        }
+    }
+
+    [MessagePackObject]
     public class FnMsgpackOutHelo
     {
         [Key(0)]
