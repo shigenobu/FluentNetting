@@ -124,6 +124,8 @@ namespace FluentNest
         /// </summary>
         private const string TmpStoredCount = "__tmpStoredCount";
 
+        private const int HandshakeMaxStoredCount = 3;
+        
         /// <summary>
         ///     Authorized key, if 'security' section used.
         /// </summary>
@@ -178,10 +180,7 @@ namespace FluentNest
             if (_config.EnableAuthorization())
             {
                 // handshake - send HELO
-                // var helo = new FnMsgpackOutHelo();
-                // helo.Option.Nonce = _config.Nonce!;
-                // helo.Option.Keepalive = _config.KeepAlive;
-                var helo = new FnMsgpackOutHelo2(_config.Nonce!, null, _config.KeepAlive);
+                var helo = new FnMsgpackOutHelo(_config.Nonce!, null, _config.KeepAlive);
                 FnLogger.Debug(() => $"Send 'HELO': {MessagePackSerializer.SerializeToJson(helo)}");
                 session.Send(MessagePackSerializer.Serialize(helo));
             }
@@ -210,61 +209,59 @@ namespace FluentNest
                 var authorized = session.GetValue<bool>(AuthorizedKey);
                 if (!authorized)
                 {
-                    try
+                    // handshake - receive PING
+                    if (!FnMsgpackParser.TryParseForPing(message, out var ping))
                     {
-                        // handshake - receive PING
-                        var ping = MessagePackSerializer.Deserialize<FnMsgpackInPing>(message);
-                        FnLogger.Debug(() => $"Read 'PING': {MessagePackSerializer.SerializeToJson(ping)}");
+                        // stored to session
+                        session.SetValue(TmpStoredKey, message);
+                        session.SetValue(TmpStoredCount, ++storedCount);
 
-                        // clear session
-                        session.ClearValue(TmpStoredKey);
-                        session.ClearValue(TmpStoredCount);
-
-                        // check digest
-                        var authResult = true;
-                        var reason = string.Empty;
-                        if (!_config.CheckDigest(message))
-                        {
-                            authResult = false;
-                            reason = "Illegal";
-                        }
-
-                        session.SetValue(AuthorizedKey, authResult);
-
-                        // handshake - send PONG
-                        var pong = new FnMsgpackOutPong()
-                        {
-                            AuthResult = authResult,
-                            ServerHostname = _config.ServerHostname,
-                            Reason = reason,
-                            SharedKeyHexdigest = _config.CreateDigest(ping)
-                        };
-                        session.Send(MessagePackSerializer.Serialize(pong));
-                        FnLogger.Debug(() => $"Send 'PONG': {MessagePackSerializer.SerializeToJson(pong)}");
-
-                        // handshake - keep connection or disconnect
-                        if (!authResult)
+                        // close session 
+                        if (storedCount > HandshakeMaxStoredCount)
                         {
                             session.Close();
                         }
+
+                        return;
                     }
-                    catch (Exception e)
+                    
+                    // clear session
+                    session.ClearValue(TmpStoredKey);
+                    session.ClearValue(TmpStoredCount);
+
+                    // check digest
+                    var authResult = true;
+                    var reason = string.Empty;
+                    if (!_config.CheckDigest(ping!))
                     {
-                        FnLogger.Debug(e);
-
-                        // stored to session
-                        // session.SetValue(TmpStoredKey, message);
-                        // session.SetValue(TmpStoredCount, ++storedCount);
-
+                        authResult = false;
+                        reason = "Illegal";
+                    }
+                    session.SetValue(AuthorizedKey, authResult);
+                    
+                    // handshake - send PONG
+                    var pong = new FnMsgpackOutPong()
+                    {
+                        AuthResult = authResult,
+                        ServerHostname = _config.ServerHostname,
+                        Reason = reason,
+                        SharedKeyHexdigest = _config.CreateDigest(ping)
+                    };
+                    session.Send(MessagePackSerializer.Serialize(pong));
+                    FnLogger.Debug(() => $"Send 'PONG': {MessagePackSerializer.SerializeToJson(pong)}");
+                    
+                    // handshake - keep connection or disconnect
+                    if (!authResult)
+                    {
                         session.Close();
                     }
-
+                    
                     return;
                 }
             }
 
             // receive message
-            if (!FnMsgpackParser.TryParse(message, out var msg))
+            if (!FnMsgpackParser.TryParseForMessage(message, out var msg))
             {
                 // stored to session
                 session.SetValue(TmpStoredKey, message);

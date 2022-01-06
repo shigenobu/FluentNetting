@@ -88,16 +88,27 @@ namespace FluentNest
         /// <summary>
         ///     Crypt string to sha512 string.
         /// </summary>
-        /// <param name="src"></param>
-        /// <returns></returns>
-        /// <exception cref="FnExtensionException"></exception>
+        /// <param name="src">string</param>
+        /// <returns>sha512 string</returns>
+        /// <exception cref="FnExtensionException">error</exception>
         internal static string FxSha512(this string src)
         {
             var data = Encoding.UTF8.GetBytes(src);
+            return data.FxSha512();
+        }
+
+        /// <summary>
+        ///     Crypt byte array to sha512 string.
+        /// </summary>
+        /// <param name="src">byte array</param>
+        /// <returns>sha512 string</returns>
+        /// <exception cref="FnExtensionException">error</exception>
+        internal static string FxSha512(this byte[] src)
+        {
             try
             {
                 using var algorithm = SHA512.Create();
-                var hashBytes = algorithm.ComputeHash(data);
+                var hashBytes = algorithm.ComputeHash(src);
  
                 var builder = new StringBuilder();
                 foreach (var num in hashBytes)
