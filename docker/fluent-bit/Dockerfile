@@ -1,6 +1,6 @@
 FROM fluent/fluent-bit:1.8.11 as builder
 
-FROM amd64/debian:10.11-slim
+FROM amd64/debian:10.11-slim as common
 
 # Copy certificates
 COPY --from=builder /usr/share/ca-certificates/  /usr/share/ca-certificates/
@@ -67,11 +67,16 @@ RUN echo "ja_JP.UTF-8 UTF-8" > /etc/locale.gen && \
 # user fluent
 #USER fluent
 
-# copy configuration
-COPY ./etc/fluent-bit.conf /fluent-bit/etc/fluent-bit.conf
-
 #
 EXPOSE 2020
 
 # Entry point
 CMD ["/fluent-bit/bin/fluent-bit", "-c", "/fluent-bit/etc/fluent-bit.conf"]
+
+FROM common as forward
+# copy configuration
+COPY ./etc/fluent-bit.conf /fluent-bit/etc/fluent-bit.conf
+
+FROM common as forward-secure
+# copy configuration
+COPY ./etc/fluent-bit-secure.conf /fluent-bit/etc/fluent-bit.conf

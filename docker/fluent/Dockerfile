@@ -1,4 +1,4 @@
-FROM fluent/fluentd:v1.14-debian-1
+FROM fluent/fluentd:v1.14-debian-1 as common
 
 # --------------------
 # user root
@@ -30,5 +30,10 @@ RUN echo "ja_JP.UTF-8 UTF-8" > /etc/locale.gen && \
 # user fluent
 USER fluent
 
+FROM common as forward
 # copy configuration
 COPY ./etc/fluent.conf /fluentd/etc/fluent.conf
+
+FROM common as forward-secure
+# copy configuration
+COPY ./etc/fluent-secure.conf /fluentd/etc/fluent.conf
