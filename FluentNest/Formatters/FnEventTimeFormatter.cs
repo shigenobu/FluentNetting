@@ -6,7 +6,7 @@ using MessagePack.Formatters;
 
 namespace FluentNest.Formatters
 {
-    public class FnEventTimeFormatter : IMessagePackFormatter<DateTimeOffset>
+    public sealed class FnEventTimeFormatter : IMessagePackFormatter<DateTimeOffset>
     {
         public void Serialize(ref MessagePackWriter writer, DateTimeOffset value, MessagePackSerializerOptions options)
         {
@@ -43,9 +43,10 @@ namespace FluentNest.Formatters
             }
         }
 
-        // https://github.com/neuecc/MessagePack-CSharp/blob/847c581d7a9ff98284eb609014627126777dacf5/src/MessagePack.UnityClient/Assets/Scripts/MessagePack/Formatters/TypelessFormatter.cs#L217
         public DateTimeOffset Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
+            // Reference implementation
+            // https://github.com/neuecc/MessagePack-CSharp/blob/847c581d7a9ff98284eb609014627126777dacf5/src/MessagePack.UnityClient/Assets/Scripts/MessagePack/Formatters/TypelessFormatter.cs#L217
             if (reader.IsNil)
             {
                 throw new MessagePackSerializationException("Data is Nil, FnEventTime can not be null.");
@@ -66,6 +67,7 @@ namespace FluentNest.Formatters
                         {
                             reader = peekReader;
                             var readOnlySequence = reader.ReadRaw(8);
+                            // Reference implementation
                             // https://github.com/neuecc/MessagePack-CSharp/blob/ffc18319670d49246db1abbd05c404a820280776/src/MessagePack.UnityClient/Assets/Scripts/MessagePack/MessagePackReader.cs#L645
                             var seconds =
                                 BinaryPrimitives.ReverseEndianness(
@@ -87,13 +89,9 @@ namespace FluentNest.Formatters
         }
     }
 
-    // Copyright (c) All contributors. All rights reserved.
-    // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
     internal static class DateTimeConstants
     {
         internal const long BclSecondsAtUnixEpoch = 62135596800;
         internal const int NanosecondsPerTick = 100;
-        internal static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     }
 }

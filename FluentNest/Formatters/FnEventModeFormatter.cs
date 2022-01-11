@@ -8,7 +8,7 @@ using MessagePack.Formatters;
 
 namespace FluentNest.Formatters
 {
-    public class FnEventModeFormatter : IMessagePackFormatter<BaseFnEventMode>
+    public sealed class FnEventModeFormatter : IMessagePackFormatter<BaseFnEventMode>
     {
         private static readonly FnEventTimeFormatter EventTimeFormatter = new();
 
@@ -18,6 +18,9 @@ namespace FluentNest.Formatters
 
         public void Serialize(ref MessagePackWriter writer, BaseFnEventMode value, MessagePackSerializerOptions options)
         {
+            // detect object type and ignore optional content is null or empty value
+            // because of [Key(n)] attributes could not ignore null or empty value
+            // i.e. [Key(n)] attributes serialize data to fixed length array and length is number of members
             switch (value)
             {
                 case FnMessageMode o:
@@ -116,12 +119,12 @@ namespace FluentNest.Formatters
                 throw new MessagePackSerializationException("Invalid BaseFnEventMode count.");
             }
 
+            // tag must be first element
             var tag = peekReader.ReadString();
             if (tag == null)
             {
                 throw new MessagePackSerializationException("1st element is Nil, 1st element can not be null.");
             }
-
 
             switch (peekReader.NextMessagePackType)
             {
@@ -158,7 +161,9 @@ namespace FluentNest.Formatters
                                     if (value == "gzip")
                                     {
                                         // CompressedPackedForward Mode
-                                        result = new FnCompressedPackedForwardMode();
+                                        result = new FnCompressedPackedForwardMode { Option = option };
+                                        // decompress and replace compressed data to decompressed data
+                                        // deserialization is deferred
                                         if (readOnlySequence.HasValue)
                                         {
                                             using var memoryStream = new MemoryStream();
@@ -171,23 +176,20 @@ namespace FluentNest.Formatters
 
                                             readOnlySequence = new ReadOnlySequence<byte>(memoryStream.ToArray());
                                         }
-
-                                        ((FnCompressedPackedForwardMode) result).Option = option;
+                                    }
+                                    else
+                                    {
+                                        throw new MessagePackSerializationException(
+                                            "option.compressed must be 'gzip'.");
                                     }
                                 }
                                 else
                                 {
-                                    throw new MessagePackSerializationException("option.compressed is not string.");
+                                    throw new MessagePackSerializationException("option.compressed must be string.");
                                 }
                             }
 
-                            result ??= new FnPackedForwardMode(); // PackedForward Mode(have option)
-                            switch (result)
-                            {
-                                case FnPackedForwardMode o:
-                                    o.Option = option;
-                                    break;
-                            }
+                            result ??= new FnPackedForwardMode { Option = option }; // PackedForward Mode(have option)
                         }
                         else
                         {
@@ -200,6 +202,7 @@ namespace FluentNest.Formatters
 
                     result.Tag = tag;
 
+                    // deserialize entries(that is stream data)
                     if (readOnlySequence.HasValue)
                     {
                         var messagePackReader = new MessagePackReader((ReadOnlySequence<byte>) readOnlySequence);

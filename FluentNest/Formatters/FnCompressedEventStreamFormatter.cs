@@ -8,7 +8,7 @@ using MessagePack.Formatters;
 
 namespace FluentNest.Formatters
 {
-    public class FnCompressedEventStreamFormatter : IMessagePackFormatter<List<FnEntry>>
+    public sealed class FnCompressedEventStreamFormatter : IMessagePackFormatter<List<FnEntry>>
     {
         public void Serialize(ref MessagePackWriter writer, List<FnEntry> value, MessagePackSerializerOptions options)
         {

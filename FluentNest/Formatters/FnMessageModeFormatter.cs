@@ -3,7 +3,7 @@ using MessagePack.Formatters;
 
 namespace FluentNest.Formatters
 {
-    public class FnMessageModeFormatter : IMessagePackFormatter<FnMessageMode>
+    public sealed class FnMessageModeFormatter : IMessagePackFormatter<FnMessageMode>
     {
         private static readonly FnEventModeFormatter EventModeFormatter = new();
 
