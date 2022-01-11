@@ -23,18 +23,39 @@ namespace FluentNest.Tests
         [Fact]
         public void TestForever()
         {
+            // forward
             var server = new FnServer(new TestCallback())
+            {
+                Config = new FnConfig(),
+                SettingClient = new FnSettingClient(),
+                SettingServer = new FnSettingServer
+                {
+                    BindHost = "0.0.0.0",
+                    BindPort = 8710
+                }
+            };
+            server.Start();
+            
+            // secure forward
+            var serverSecure = new FnServer(new TestCallback())
             {
                 Config = new FnConfig
                 {
                     Nonce = "ABC",
-                    SharedKey = "0123456789"
+                    SharedKey = "0123456789",
+                    KeepAlive = true
                 },
                 SettingClient = new FnSettingClient(),
-                SettingServer = new FnSettingServer()
+                SettingServer = new FnSettingServer
+                {
+                    BindHost = "0.0.0.0",
+                    BindPort = 8711
+                }
             };
-            server.Start();
+            serverSecure.Start();
+            
             server.WaitFor();
+            serverSecure.WaitFor();
         }
     }
 
