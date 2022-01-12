@@ -178,11 +178,11 @@ namespace FluentNest.Formatters
                                             readOnlySequence = new ReadOnlySequence<byte>(memoryStream.ToArray());
                                         }
                                     }
-                                    // else
-                                    // {
-                                    //     throw new MessagePackSerializationException(
-                                    //         "option.compressed must be 'gzip'.");
-                                    // }
+                                    else if (value != "text")
+                                    {
+                                        throw new MessagePackSerializationException(
+                                            "option.compressed must be 'gzip'.");
+                                    }
                                 }
                                 else
                                 {
