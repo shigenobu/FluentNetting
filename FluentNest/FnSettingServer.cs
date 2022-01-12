@@ -31,9 +31,9 @@ namespace FluentNest
         public int TcpReadBufferSize { get; set; } = 1024 * 1024;
 
         /// <summary>
-        ///     Tcp max stored count, default 10.
+        ///     Tcp max stored count, default 3.
         /// </summary>
-        public int TcpMaxStoredCount { get; set; } = 10;
+        public int TcpMaxStoredCount { get; set; } = 3;
 
         /// <summary>
         ///     Udp manage remote divide, default 2.

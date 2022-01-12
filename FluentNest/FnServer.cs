@@ -125,7 +125,10 @@ namespace FluentNest
         /// </summary>
         private const string TmpStoredCount = "__tmpStoredCount";
 
-        private const int HandshakeMaxStoredCount = 3;
+        /// <summary>
+        ///     Handshake max stored count - default 2.
+        /// </summary>
+        private const int HandshakeMaxStoredCount = 2;
         
         /// <summary>
         ///     Authorized key, if 'security' section used.
@@ -203,8 +206,6 @@ namespace FluentNest
             {
                 message = newMessage.FxConcat(message);
             }
-            
-            // File.WriteAllBytes("/home/furuta/02-development/rider/FluentNest/FluentNest.Tests/data/compressed.bin", message);
 
             // authorization
             if (_config.EnableAuthorization())

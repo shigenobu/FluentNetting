@@ -4,9 +4,9 @@
         <TargetFramework>net5.0</TargetFramework>
         <LangVersion>9</LangVersion>
         <Description>Fluent forwarded server.</Description>
-        <Authors>Shigenobu Furuta</Authors>
+        <Authors>Shigenobu Furuta;ArmadaSuit;</Authors>
         <PackageId>FluentNest</PackageId>
-        <PackageTags>fluent;fluentd;forward;forwarded</PackageTags>
+        <PackageTags>fluent;fluentd;fluent-bit;forward;forwarded</PackageTags>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/shigenobu/FluentNest.git</RepositoryUrl>
@@ -23,10 +23,6 @@
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>$(AssemblyName).Tests</_Parameter1>
         </AssemblyAttribute>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Remove="FnEventTimeResolver.cs" />
     </ItemGroup>
 
 </Project>
