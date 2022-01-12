@@ -17,6 +17,8 @@ This library is supported for both fluentd and fluent-bit.
 * Security forwarding authorization, `HELO`, `PING` and `PONG` (not tls, not username/password, only self_hostname/shared_key).
 * Udp heartbeat.
 
+---
+
 ### how to use
 
 (data flow)  
@@ -49,7 +51,7 @@ This library is supported for both fluentd and fluent-bit.
 
 ##### fluent configuration (fluentd or fluent-bit in a same host)
 
-fluentd  
+(fluentd)  
 
     <source>
       @type forward
@@ -78,7 +80,7 @@ fluentd
       flush_interval 1m
     </match>
 
-fluent-bit
+(fluent-bit)  
 
     [SERVICE]
         Flush         5
@@ -104,8 +106,15 @@ fluent-bit
 
 ##### client - csharp used by Serilog
 
-    var options = new FluentdSinkOptions("your server address", 24224, "tag.example");
+    var options = new FluentdSinkOptions("your fluentd or fluent-bit server address", 24224, "tag.example");
     var log = new LoggerConfiguration().WriteTo.Fluentd(options).CreateLogger();
     log.Information("hello {0}!", "world");
 
 In detail, confirm [example](FluentNest.Examples/Program.cs).  
+
+---
+
+### motivated and referenced
+
+* [influent](https://github.com/okumin/influent) - java fluentd forward server.
+* [MessagePack-CSharp](https://github.com/neuecc/MessagePack-CSharp) - csharp fastest message pack parser.
