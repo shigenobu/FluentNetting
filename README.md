@@ -2,8 +2,8 @@
 
 ### feature
 
-'FluentNest' is fluent forwarding message received server based on [Fluent forward protocol v1 specification](https://github.com/fluent/fluentd/wiki/Forward-Protocol-Specification-v1).  
-This library is enable to receive from fluentd or fluent-bit forward output message.  
+'FluentNest' is fluent forwarding message received server that is based on [Fluent forward protocol v1 specification](https://github.com/fluent/fluentd/wiki/Forward-Protocol-Specification-v1).  
+This library is supported for both fluentd and fluent-bit.  
 
 ### supported message mode (format)
 
@@ -14,7 +14,7 @@ This library is enable to receive from fluentd or fluent-bit forward output mess
 
 ### supported configuration  
 
-* Security forward Authorization, `HELO`, `PING` and `PONG` (not tls, not username/password, only self_hostname/shared_key).
+* Security forwarding authorization, `HELO`, `PING` and `PONG` (not tls, not username/password, only self_hostname/shared_key).
 * Udp heartbeat.
 
 ### how to use
@@ -47,10 +47,9 @@ This library is enable to receive from fluentd or fluent-bit forward output mess
     server.Start();
     server.WaitFor();
 
-##### fluent configuration
+##### fluent configuration (fluentd or fluent-bit in a same host)
 
-- fluentd  
-
+fluentd  
 
     <source>
       @type forward
@@ -68,7 +67,7 @@ This library is enable to receive from fluentd or fluent-bit forward output mess
       require_ack_response
     
       <server>
-        host {{ your server host }}
+        host {{ your server address }}
         port 8710
       </server>
     
@@ -79,8 +78,7 @@ This library is enable to receive from fluentd or fluent-bit forward output mess
       flush_interval 1m
     </match>
 
-- fluent-bit
-
+fluent-bit
 
     [SERVICE]
         Flush         5
@@ -99,14 +97,14 @@ This library is enable to receive from fluentd or fluent-bit forward output mess
     [OUTPUT]
         Name                  forward
         Match                 *
-        Host                  {{ your server host }}
+        Host                  {{ your server address }}
         Port                  8710
         Require_ack_response  true
         Send_options          true
 
 ##### client - csharp used by Serilog
 
-    var options = new FluentdSinkOptions("your server host", 24224, "tag.example");
+    var options = new FluentdSinkOptions("your server address", 24224, "tag.example");
     var log = new LoggerConfiguration().WriteTo.Fluentd(options).CreateLogger();
     log.Information("hello {0}!", "world");
 
