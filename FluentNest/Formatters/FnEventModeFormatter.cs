@@ -136,7 +136,7 @@ namespace FluentNest.Formatters
                     return MessagePackSerializer.Deserialize<FnForwardMode>(ref reader);
                 case MessagePackType.String:
                     // Comment out why fluentd compressed mode sends string format.
-                    // return MessagePackSerializer.Deserialize<FnPackedForwardMode>(ref reader);
+                    return MessagePackSerializer.Deserialize<FnPackedForwardMode>(ref reader);
                 case MessagePackType.Binary:
                     reader = peekReader;
                     // PackedForward Mode or CompressedPackedForward Mode
