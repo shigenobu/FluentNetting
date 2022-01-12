@@ -194,7 +194,7 @@ namespace FluentNest
         /// <param name="message">message</param>
         public override void OnMessage(PsSession session, byte[] message)
         {
-            File.WriteAllBytes("/home/furuta/02-development/rider/FluentNest/FluentNest.Tests/data/compressed.bin", message);
+            // File.WriteAllBytes("/home/furuta/02-development/rider/FluentNest/FluentNest.Tests/data/compressed.bin", message);
             
             // get stored count from session
             int storedCount = session.GetValue<int>(TmpStoredCount);
