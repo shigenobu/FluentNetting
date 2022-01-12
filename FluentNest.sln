@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentNest", "FluentNest\Fl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentNest.Tests", "FluentNest.Tests\FluentNest.Tests.csproj", "{263B7B14-ACC9-4FA0-9071-B889517B211B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentNest.Examples", "FluentNest.Examples\FluentNest.Examples.csproj", "{CC9DD476-74C6-40A8-BE68-25A59F06A4DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{263B7B14-ACC9-4FA0-9071-B889517B211B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{263B7B14-ACC9-4FA0-9071-B889517B211B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{263B7B14-ACC9-4FA0-9071-B889517B211B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC9DD476-74C6-40A8-BE68-25A59F06A4DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC9DD476-74C6-40A8-BE68-25A59F06A4DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC9DD476-74C6-40A8-BE68-25A59F06A4DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC9DD476-74C6-40A8-BE68-25A59F06A4DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
