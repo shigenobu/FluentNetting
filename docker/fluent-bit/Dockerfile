@@ -76,7 +76,9 @@ CMD ["/fluent-bit/bin/fluent-bit", "-c", "/fluent-bit/etc/fluent-bit.conf"]
 FROM common as forward
 # copy configuration
 COPY ./etc/fluent-bit.conf /fluent-bit/etc/fluent-bit.conf
+COPY ./etc/upstream.conf /fluent-bit/etc/upstream.conf
 
 FROM common as forward-secure
 # copy configuration
 COPY ./etc/fluent-bit-secure.conf /fluent-bit/etc/fluent-bit.conf
+COPY ./etc/upstream-secure.conf /fluent-bit/etc/upstream.conf

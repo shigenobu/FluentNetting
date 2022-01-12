@@ -123,7 +123,7 @@ namespace FluentNest
         /// <returns>If parsed success, return true</returns>
         internal static bool TryParseForMessage(byte[] message, out FnMessage? msg)
         {
-            // FnLogger.Debug(() => $"TryParseForMessage: {message.FxToHexString()}");
+            FnLogger.Debug(() => $"TryParseForMessage: {message.FxToHexString()}");
             
             try
             {
