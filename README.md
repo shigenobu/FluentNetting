@@ -1,5 +1,8 @@
 # FluentNest - fluentd / fluent-bit forwarded server
 
+[![nuget](https://badgen.net/nuget/v/FluentNest/latest)](https://www.nuget.org/packages/FluentNest/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 ### feature
 
 'FluentNest' is fluent forwarding message received server that is based on [Fluent forward protocol v1 specification](https://github.com/fluent/fluentd/wiki/Forward-Protocol-Specification-v1).  
