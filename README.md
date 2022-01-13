@@ -3,6 +3,8 @@
 [![nuget](https://badgen.net/nuget/v/FluentNest/latest)](https://www.nuget.org/packages/FluentNest/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+![Icon_64.png](FluentNest/Icon/Icon_64.png)
+
 ### feature
 
 'FluentNest' is fluent forwarding message received server that is based on [Fluent forward protocol v1 specification](https://github.com/fluent/fluentd/wiki/Forward-Protocol-Specification-v1).  
@@ -44,7 +46,7 @@ This library is supported for both fluentd and fluent-bit.
     {
         // default - not authrization, enable 'RequireAck', disable 'Keepalive'
         Config = new FnConfig(),
-        // default - tcp timeout 65sec, udp timeout 15sec
+        // default - tcp timeout 65 sec, udp timeout 15 sec
         SettingClient = new FnSettingClient(),
         // default - listening on tcp://0.0.0.0:8710, udp://0.0.0.0:8710
         SettingServer = new FnSettingServer()

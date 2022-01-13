@@ -14,10 +14,7 @@ namespace FluentNest.Examples
         {
             var server = new FnServer(new ExampleCallback())
             {
-                Config = new FnConfig
-                {
-                    KeepAlive = false
-                },
+                Config = new FnConfig(),
                 SettingClient = new FnSettingClient(),
                 SettingServer = new FnSettingServer()
             };
@@ -33,6 +30,7 @@ namespace FluentNest.Examples
 
         private static Task HandleTimer()
         {
+            // send to fluentd or fluent-bit in localhost
             var options = new FluentdSinkOptions("localhost", 24224, "tag.example");
             var log = new LoggerConfiguration().WriteTo.Fluentd(options).CreateLogger();
             log.Information("hello {0}!", "world");

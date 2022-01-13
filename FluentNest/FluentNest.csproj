@@ -8,7 +8,8 @@
         <PackageId>FluentNest</PackageId>
         <PackageTags>fluent;fluentd;fluent-bit;forward;forwarded</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageIcon>Icon_64.png</PackageIcon>
+        <PackageIcon>Icon\Icon_64.png</PackageIcon>
+        <PackageIconUrl>https://raw.githubusercontent.com/shigenobu/FluentNest/master/FluentNest/Icon/Icon_64.png?token=GHSAT0AAAAAABPXY7W2PHLTUKFDLX7CJZX2YO72PVQ</PackageIconUrl>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/shigenobu/FluentNest.git</RepositoryUrl>
@@ -18,19 +19,16 @@
 
     <ItemGroup>
         <PackageReference Include="MessagePack" Version="2.3.85" />
-        <PackageReference Include="OrangeCabinet" Version="0.0.2" />
-        <PackageReference Include="PurpleSofa" Version="0.0.4" />
+        <PackageReference Include="OrangeCabinet" Version="0.0.3" />
+        <PackageReference Include="PurpleSofa" Version="0.0.5" />
         <PackageReference Include="System.IO.Pipelines" Version="6.0.1" />
 
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>$(AssemblyName).Tests</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
-
     <ItemGroup>
-        <None Remove="Icon\*" />
         <None Include="..\README.md" Pack="true" PackagePath="\" />
-        <None Include="Icon\Icon_64.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>
