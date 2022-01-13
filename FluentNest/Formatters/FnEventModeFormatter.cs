@@ -181,7 +181,7 @@ namespace FluentNest.Formatters
                                     else if (value != "text")
                                     {
                                         throw new MessagePackSerializationException(
-                                            "option.compressed must be 'gzip'.");
+                                            "option.compressed must be 'text' or 'gzip'.");
                                     }
                                 }
                                 else
