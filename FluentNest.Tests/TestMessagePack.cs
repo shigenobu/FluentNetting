@@ -21,7 +21,7 @@ namespace FluentNest.Tests
         }
 
         [Fact]
-        public void TestFowardError()
+        public void TestForwardError()
         {
             var data = File.ReadAllBytes("data/error.bin");
 
