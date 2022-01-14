@@ -3,7 +3,7 @@
 [![nuget](https://badgen.net/nuget/v/FluentNetting/latest)](https://www.nuget.org/packages/FluentNetting/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-![Icon_64.png](FluentNetting/Icon/Icon_64.png)
+![Icon_64.png](https://raw.githubusercontent.com/shigenobu/FluentNetting/master/FluentNetting/Icon/Icon_64.png?token=GHSAT0AAAAAABPXY7W2PHLTUKFDLX7CJZX2YO72PVQ)
 
 ### feature
 
