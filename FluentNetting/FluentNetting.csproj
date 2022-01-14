@@ -8,7 +8,7 @@
         <PackageId>FluentNetting</PackageId>
         <PackageTags>fluent;fluentd;fluent-bit;forward;forwarded</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageIcon>Icon\Icon_64.png</PackageIcon>
+        <PackageIcon>Icon_64.png</PackageIcon>
         <PackageIconUrl>https://raw.githubusercontent.com/shigenobu/FluentNetting/master/FluentNetting/Icon/Icon_64.png?token=GHSAT0AAAAAABPXY7W2PHLTUKFDLX7CJZX2YO72PVQ</PackageIconUrl>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <RepositoryType>git</RepositoryType>
@@ -29,6 +29,7 @@
     </ItemGroup>
     <ItemGroup>
         <None Include="..\README.md" Pack="true" PackagePath="\" />
+        <None Include="Icon\Icon_64.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>
