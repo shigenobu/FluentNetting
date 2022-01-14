@@ -1,13 +1,13 @@
-# FluentNest - fluentd / fluent-bit forwarded server
+# FluentNetting - fluentd / fluent-bit forwarded server
 
-[![nuget](https://badgen.net/nuget/v/FluentNest/latest)](https://www.nuget.org/packages/FluentNest/)
+[![nuget](https://badgen.net/nuget/v/FluentNetting/latest)](https://www.nuget.org/packages/FluentNetting/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-![Icon_64.png](FluentNest/Icon/Icon_64.png)
+![Icon_64.png](FluentNetting/Icon/Icon_64.png)
 
 ### feature
 
-'FluentNest' is fluent forwarding message received server that is based on [Fluent forward protocol v1 specification](https://github.com/fluent/fluentd/wiki/Forward-Protocol-Specification-v1).  
+'FluentNetting' is fluent forwarding message received server that is based on [Fluent forward protocol v1 specification](https://github.com/fluent/fluentd/wiki/Forward-Protocol-Specification-v1).  
 This library is supported for both fluentd and fluent-bit.  
 
 ### supported message mode (format)
@@ -28,7 +28,7 @@ This library is supported for both fluentd and fluent-bit.
 
 (data flow)  
 
-    client ---(forward)---> fluend or fluent-bit ---(forward)---> server used by FluentNest
+    client ---(forward)---> fluend or fluent-bit ---(forward)---> server used by FluentNetting
 
 ##### callback
 
@@ -115,7 +115,7 @@ This library is supported for both fluentd and fluent-bit.
     var log = new LoggerConfiguration().WriteTo.Fluentd(options).CreateLogger();
     log.Information("hello {0}!", "world");
 
-In detail, confirm [example](FluentNest.Examples/Program.cs).  
+In detail, confirm [example](FluentNetting.Examples/Program.cs).  
 
 ---
 
