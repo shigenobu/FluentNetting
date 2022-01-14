@@ -249,7 +249,7 @@ namespace FluentNetting
                         AuthResult = authResult,
                         ServerHostname = _config.ServerHostname,
                         Reason = reason,
-                        SharedKeyHexdigest = _config.CreateDigest(ping)
+                        SharedKeyHexdigest = _config.CreateDigest(ping!)
                     };
                     session.Send(MessagePackSerializer.Serialize(pong));
                     FnLogger.Debug(() => $"Send 'PONG': {MessagePackSerializer.SerializeToJson(pong)}");

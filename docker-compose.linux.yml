@@ -5,7 +5,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.102.0.0/16
+        - subnet: 172.199.0.0/16
 
 services:
   fluent:
@@ -17,7 +17,7 @@ services:
     ports:
       - 24224:24224
     extra_hosts:
-      - "host.docker.internal:172.102.0.1"
+      - "host.docker.internal:172.199.0.1"
   fluent-bit:
     build:
       context: ./docker/fluent-bit
@@ -27,7 +27,7 @@ services:
     ports:
       - 24225:24225
     extra_hosts:
-      - "host.docker.internal:172.102.0.1"
+      - "host.docker.internal:172.199.0.1"
   fluent-secure:
     build:
       context: ./docker/fluent
@@ -37,7 +37,7 @@ services:
     ports:
       - 24226:24226
     extra_hosts:
-      - "host.docker.internal:172.102.0.1"
+      - "host.docker.internal:172.199.0.1"
   fluent-bit-secure:
     build:
       context: ./docker/fluent-bit
@@ -47,4 +47,4 @@ services:
     ports:
       - 24227:24227
     extra_hosts:
-      - "host.docker.internal:172.102.0.1"
+      - "host.docker.internal:172.199.0.1"
