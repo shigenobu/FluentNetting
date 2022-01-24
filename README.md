@@ -109,13 +109,39 @@ This library is supported for both fluentd and fluent-bit.
         Require_ack_response  true
         Send_options          true
 
+##### client - csharp used by Pigeon (highly recommend)
+
+[Pigeon](https://www.nuget.org/packages/Pigeon/)  
+
+    var config = new PigeonConfig("localhost", 24224);
+    var clientPigeon = new PigeonClient(config);
+    await clientPigeon.SendAsync(
+        "tag.example2",
+        new Dictionary<string, object> {["hello"] = "world2"}
+    );
+
 ##### client - csharp used by Serilog
 
-    var options = new FluentdSinkOptions("your fluentd or fluent-bit server address", 24224, "tag.example");
-    var log = new LoggerConfiguration().WriteTo.Fluentd(options).CreateLogger();
-    log.Information("hello {0}!", "world");
+[Serilog](https://www.nuget.org/packages/Serilog.Sinks.Fluentd/)  
 
-In detail, confirm [example](FluentNetting.Examples/Program.cs).  
+    var options = new FluentdSinkOptions(
+        "localhost", 24224, "tag.example1");
+    var log = new LoggerConfiguration().WriteTo.Fluentd(options).CreateLogger();
+    log.Information("hello {0}!", "world1");
+
+##### client - csharp used by FluentdClient.Sharp
+
+[FluentdClient.Sharp](https://www.nuget.org/packages/FluentdClient.Sharp/)  
+
+    using (var client = new FluentdClient.Sharp.FluentdClient(
+               "localhost", 24224, new CustomMessagePackSerializer()))
+    {
+        await client.ConnectAsync();
+        await client.SendAsync("tag.example3", 
+            new Dictionary<string, object> {["hello"] = "world3"});
+    }
+
+In detail, confirm [example](https://github.com/shigenobu/FluentNetting/blob/master/FluentNetting.Examples/Program.cs).  
 
 ---
 

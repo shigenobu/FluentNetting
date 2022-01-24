@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
         <LangVersion>9</LangVersion>
         <Description>Fluent forwarded server.</Description>
         <Authors>Shigenobu Furuta;ArmadaSuit;kzm777</Authors>
@@ -14,13 +14,13 @@
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/shigenobu/FluentNetting.git</RepositoryUrl>
         <Nullable>enable</Nullable>
-        <Version>0.0.1</Version>
+        <Version>0.0.2</Version>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="MessagePack" Version="2.3.85" />
-        <PackageReference Include="OrangeCabinet" Version="0.0.3" />
-        <PackageReference Include="PurpleSofa" Version="0.0.5" />
+        <PackageReference Include="OrangeCabinet" Version="0.0.4" />
+        <PackageReference Include="PurpleSofa" Version="0.0.6" />
         <PackageReference Include="System.IO.Pipelines" Version="6.0.1" />
 
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
