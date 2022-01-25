@@ -130,13 +130,35 @@ namespace FluentNetting.Examples
 
             objects.Add(tag);
 
-            // must be convert to int64
-            objects.Add(Convert.ToInt64(DateTimeOffset.Now.GetUnixTimestamp().TotalSeconds));
+            // timestamp must be converted to EventTime Ext Format or int64
+            // case: EventTime Ext Format (means 100 nanosecond precision in .NET)
+            var ticks = DateTimeOffset.Now.GetUnixTimestamp().Ticks;
+            var seconds = ticks / TimeSpan.TicksPerSecond;
+            var nanoseconds = (ticks % TimeSpan.TicksPerSecond) * 100;
+            
+            var data64 = unchecked((ulong) ((seconds << 32) | nanoseconds));
+            var bytes = new []
+            {
+                (byte) (data64 >> 56),
+                (byte) (data64 >> 48),
+                (byte) (data64 >> 40),
+                (byte) (data64 >> 32),
+                (byte) (data64 >> 24),
+                (byte) (data64 >> 16),
+                (byte) (data64 >> 8),
+                (byte) data64
+            };
+
+            objects.Add(new MessagePackObject(new MessagePackExtendedTypeObject(0x00, bytes)));
+
+            // case: int64 (means second precision)
+            // objects.Add(Convert.ToInt64(DateTimeOffset.Now.GetUnixTimestamp().TotalSeconds));
+            
             objects.Add(CreateMessagePackObject(message));
 
             using (var stream = new MemoryStream())
             {
-                var packer = Packer.Create(stream);
+                var packer = Packer.Create(stream, PackerCompatibilityOptions.None);
 
                 packer.Pack(new MessagePackObject(objects));
 
