@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+        <TargetFrameworks>net5.0;net6.0;net7.0</TargetFrameworks>
         <Nullable>enable</Nullable>
         <LangVersion>9</LangVersion>
     </PropertyGroup>
@@ -13,7 +13,7 @@
 
     <ItemGroup>
       <PackageReference Include="FluentdClient.Sharp" Version="1.1.0" />
-      <PackageReference Include="Pigeon" Version="0.0.1" />
+      <PackageReference Include="Pigeon" Version="0.0.3" />
       <PackageReference Include="Serilog.Sinks.Fluentd" Version="0.4.0" />
     </ItemGroup>
 

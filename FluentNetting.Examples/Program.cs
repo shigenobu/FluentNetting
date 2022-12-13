@@ -23,7 +23,7 @@ namespace FluentNetting.Examples
     {
         public static void Main(string[] args)
         {
-            FnLogger.Verbose = true;
+            FnLogger.Verbose = false;
             
             var server = new FnServer(new ExampleCallback())
             {
