@@ -21,7 +21,7 @@
         <PackageReference Include="MessagePack" Version="2.4.59" />
         <PackageReference Include="OrangeCabinet" Version="0.0.5" />
         <PackageReference Include="PurpleSofa" Version="0.0.7" />
-        <PackageReference Include="System.IO.Pipelines" Version="7.0.0" />
+        <PackageReference Include="System.IO.Pipelines" Version="6.0.3" />
 
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>$(AssemblyName).Tests</_Parameter1>
