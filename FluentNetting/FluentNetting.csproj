@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
         <LangVersion>10</LangVersion>
         <Description>Fluent forwarded server.</Description>
         <Authors>Shigenobu Furuta;ArmadaSuit;kzm777</Authors>
@@ -14,14 +14,14 @@
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/shigenobu/FluentNetting.git</RepositoryUrl>
         <Nullable>enable</Nullable>
-        <Version>0.0.4</Version>
+        <Version>0.0.5</Version>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MessagePack" Version="2.5.124" />
-        <PackageReference Include="OrangeCabinet" Version="0.0.8" />
-        <PackageReference Include="PurpleSofa" Version="0.1.0" />
-        <PackageReference Include="System.IO.Pipelines" Version="7.0.0" />
+        <PackageReference Include="MessagePack" Version="2.5.140" />
+        <PackageReference Include="OrangeCabinet" Version="0.0.9" />
+        <PackageReference Include="PurpleSofa" Version="0.1.1" />
+        <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
 
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>$(AssemblyName).Tests</_Parameter1>
