@@ -14,13 +14,13 @@
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/shigenobu/FluentNetting.git</RepositoryUrl>
         <Nullable>enable</Nullable>
-        <Version>0.0.5</Version>
+        <Version>0.1.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="MessagePack" Version="2.5.140" />
-        <PackageReference Include="OrangeCabinet" Version="0.0.9" />
-        <PackageReference Include="PurpleSofa" Version="0.1.1" />
+        <PackageReference Include="OrangeCabinet" Version="0.2.0" />
+        <PackageReference Include="PurpleSofa" Version="0.2.0" />
         <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
 
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">

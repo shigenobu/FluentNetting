@@ -80,6 +80,12 @@ namespace FluentNetting.Examples
         {
             Console.WriteLine($"tag:{tag}, entries:[{string.Join(", ", entries.Select(e => $"{{{e}}}"))}]");
         }
+        
+        public Task ReceiveAsync(string tag, List<FnMessageEntry> entries)
+        {
+            Console.WriteLine($"async tag:{tag}, entries:[{string.Join(", ", entries.Select(e => $"{{{e}}}"))}]");
+            return Task.CompletedTask;
+        }
     }
 
     public class CustomMessagePackSerializer : IMessagePackSerializer

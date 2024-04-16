@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
+using System.Threading.Tasks;
 using OrangeCabinet;
 using PurpleSofa;
 using Xunit;
@@ -17,7 +18,7 @@ namespace FluentNetting.Tests
             PsLogger.Verbose = true;
             
             FnLogger.Verbose = true;
-            FnLogger.Transfer = (msg) => outputHelper.WriteLine(msg?.ToString());
+            // FnLogger.Transfer = (msg) => outputHelper.WriteLine(msg?.ToString());
         }
         
         [Fact]

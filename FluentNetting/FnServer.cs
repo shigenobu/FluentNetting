@@ -1,379 +1,372 @@
 using System;
-using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using MessagePack;
 using OrangeCabinet;
 using PurpleSofa;
 
-namespace FluentNetting
+namespace FluentNetting;
+
+/// <summary>
+///     Server.
+/// </summary>
+public class FnServer
 {
     /// <summary>
-    ///     Server.
+    ///     Callback.
     /// </summary>
-    public class FnServer
+    private readonly IFnCallback _callback;
+
+    /// <summary>
+    ///     Tcp server.
+    /// </summary>
+    private PsServer? _tcpServer;
+
+    /// <summary>
+    ///     Udp server.
+    ///     If not set, creating with default server & client setting.
+    /// </summary>
+    private OcLocal? _udpServer;
+
+    /// <summary>
+    ///     Constructor.
+    /// </summary>
+    /// <param name="callback">callback</param>
+    /// <exception cref="NotSupportedException">exception for sync callback set to async</exception>
+    public FnServer(IFnCallback callback)
     {
-        /// <summary>
-        ///     Callback.
-        /// </summary>
-        private readonly IFnCallback _callback;
+        if (IFnCallback.ContainsAsync(callback))
+            throw new NotSupportedException(
+                $"Disallow async override at {string.Join(',', IFnCallback.SynchronousMethodNames.ToArray())} in {callback.GetType().FullName}, use 'xxxAsync' alternatively.");
+        _callback = callback;
+    }
 
-        /// <summary>
-        ///     Tcp server.
-        /// </summary>
-        private PsServer? _tcpServer;
+    /// <summary>
+    ///     Config.
+    ///     If not set, used by default config.
+    /// </summary>
+    public FnConfig? Config { get; set; }
 
-        /// <summary>
-        ///     Udp server.
-        ///     If not set, creating with default server & client setting.
-        /// </summary>
-        private OcLocal? _udpServer;
+    /// <summary>
+    ///     Setting server.
+    ///     If not set, used by default server setting.
+    /// </summary>
+    public FnSettingServer? SettingServer { get; set; }
 
-        /// <summary>
-        ///     Config.
-        ///     If not set, used by default config.
-        /// </summary>
-        public FnConfig? Config { get; set; }
+    /// <summary>
+    ///     Setting client.
+    ///     If not set, used by default client setting.
+    /// </summary>
+    public FnSettingClient? SettingClient { get; set; }
 
-        /// <summary>
-        ///     Setting server.
-        ///     If not set, used by default server setting.
-        /// </summary>
-        public FnSettingServer? SettingServer { get; set; }
+    /// <summary>
+    ///     Start.
+    /// </summary>
+    public void Start()
+    {
+        // config
+        Config ??= new FnConfig();
 
-        /// <summary>
-        ///     Setting client.
-        ///     If not set, used by default client setting.
-        /// </summary>
-        public FnSettingClient? SettingClient { get; set; }
+        // server setting
+        SettingServer ??= new FnSettingServer();
 
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="callback">callback</param>
-        public FnServer(IFnCallback callback)
+        // config
+        SettingClient ??= new FnSettingClient();
+
+        // tcp server
+        _tcpServer ??= new PsServer(new FnTcpCallback(Config, SettingServer, SettingClient, _callback)
+            {UseAsyncCallback = true})
         {
-            _callback = callback;
-        }
+            Host = SettingServer.BindHost,
+            Port = SettingServer.BindPort,
+            Backlog = SettingServer.TcpBackLog,
+            Divide = SettingServer.TcpDivide,
+            ReadBufferSize = SettingServer.TcpReadBufferSize
+        };
+        _tcpServer.Start();
 
-        /// <summary>
-        ///     Start.
-        /// </summary>
-        public void Start()
+        // udp server
+        _udpServer ??= new OcLocal(new OcBinder(new FnUdpCallback(Config, SettingClient) {UseAsyncCallback = true})
         {
-            // config
-            Config ??= new FnConfig();
+            BindHost = SettingServer.BindHost,
+            BindPort = SettingServer.BindPort,
+            Divide = SettingServer.UdpDivide,
+            ReadBufferSize = SettingServer.UdpReadBufferSize
+        });
+        _udpServer.Start();
+    }
 
-            // server setting
-            SettingServer ??= new FnSettingServer();
+    /// <summary>
+    ///     Wait for.
+    /// </summary>
+    public void WaitFor()
+    {
+        _tcpServer?.WaitFor();
+        _udpServer?.WaitFor();
+    }
 
-            // config
-            SettingClient ??= new FnSettingClient();
+    /// <summary>
+    ///     Shutdown.
+    /// </summary>
+    public void Shutdown()
+    {
+        _udpServer?.Shutdown();
+        _tcpServer?.Shutdown();
+    }
+}
 
-            // tcp server
-            _tcpServer ??= new PsServer(new FnTcpCallback(Config, SettingServer, SettingClient, _callback))
-            {
-                Host = SettingServer.BindHost,
-                Port = SettingServer.BindPort,
-                Backlog = SettingServer.TcpBackLog,
-                Divide = SettingServer.TcpDivide,
-                ReadBufferSize = SettingServer.TcpReadBufferSize
-            };
-            _tcpServer.Start();
+/// <summary>
+///     Tcp callback.
+/// </summary>
+internal class FnTcpCallback : PsCallback
+{
+    /// <summary>
+    ///     Stored key for tcp divide message.
+    /// </summary>
+    private const string TmpStoredKey = "__tmpStoredKey";
 
-            // udp server
-            _udpServer ??= new OcLocal(new OcBinder(new FnUdpCallback(Config, SettingClient))
-            {
-                BindHost = SettingServer.BindHost,
-                BindPort = SettingServer.BindPort,
-                Divide = SettingServer.UdpDivide,
-                ReadBufferSize = SettingServer.UdpReadBufferSize
-            });
-            _udpServer.Start();
-        }
+    /// <summary>
+    ///     Stored key for tcp divide count of message.
+    /// </summary>
+    private const string TmpStoredCount = "__tmpStoredCount";
 
-        /// <summary>
-        ///     Wait for.
-        /// </summary>
-        public void WaitFor()
+    /// <summary>
+    ///     Handshake max stored count - default 2.
+    /// </summary>
+    private const int HandshakeMaxStoredCount = 2;
+
+    /// <summary>
+    ///     Authorized key, if 'security' section used.
+    /// </summary>
+    private const string AuthorizedKey = "__authorizedKey";
+
+    /// <summary>
+    ///     Callback.
+    /// </summary>
+    private readonly IFnCallback _callback;
+
+    /// <summary>
+    ///     Config.
+    /// </summary>
+    private readonly FnConfig _config;
+
+    /// <summary>
+    ///     Setting client.
+    /// </summary>
+    private readonly FnSettingClient _settingClient;
+
+    /// <summary>
+    ///     Setting server.
+    /// </summary>
+    private readonly FnSettingServer _settingServer;
+
+    /// <summary>
+    ///     Constructor.
+    /// </summary>
+    /// <param name="config">config</param>
+    /// <param name="settingServer">setting server</param>
+    /// <param name="settingClient">setting client</param>
+    /// <param name="callback">callback</param>
+    internal FnTcpCallback(FnConfig config, FnSettingServer settingServer, FnSettingClient settingClient,
+        IFnCallback callback)
+    {
+        _config = config;
+        _settingServer = settingServer;
+        _settingClient = settingClient;
+        _callback = callback;
+    }
+
+    /// <summary>
+    ///     Async on open.
+    /// </summary>
+    /// <param name="session">session</param>
+    public override async Task OnOpenAsync(PsSession session)
+    {
+        // timeout
+        session.ChangeIdleMilliSeconds(_settingClient.TcpTimeout * 1000);
+
+        // authorization
+        if (_config.EnableAuthorization())
         {
-            _tcpServer?.WaitFor();
-            _udpServer?.WaitFor();
-        }
-
-        /// <summary>
-        ///     Shutdown.
-        /// </summary>
-        public void Shutdown()
-        {
-            _udpServer?.Shutdown();
-            _tcpServer?.Shutdown();
+            // handshake - send HELO
+            var helo = new FnMsgpackOutHelo(_config.Nonce!, null, _config.KeepAlive);
+            FnLogger.Debug(() => $"Send 'HELO': {MessagePackSerializer.SerializeToJson(helo)}");
+            await session.SendAsync(MessagePackSerializer.Serialize(helo));
         }
     }
 
     /// <summary>
-    ///     Tcp callback.
+    ///     Async on message.
     /// </summary>
-    internal class FnTcpCallback : PsCallback
+    /// <param name="session">session</param>
+    /// <param name="message">message</param>
+    public override async Task OnMessageAsync(PsSession session, byte[] message)
     {
-        /// <summary>
-        ///     Stored key for tcp divide message.
-        /// </summary>
-        private const string TmpStoredKey = "__tmpStoredKey";
+        // get stored count from session
+        var storedCount = session.GetValue<int>(TmpStoredCount);
 
-        /// <summary>
-        ///     Stored key for tcp divide count of message.
-        /// </summary>
-        private const string TmpStoredCount = "__tmpStoredCount";
+        // get stored message from session
+        var newMessage = session.GetValue<byte[]>(TmpStoredKey);
+        if (newMessage != null) message = newMessage.FxConcat(message);
 
-        /// <summary>
-        ///     Handshake max stored count - default 2.
-        /// </summary>
-        private const int HandshakeMaxStoredCount = 2;
-        
-        /// <summary>
-        ///     Authorized key, if 'security' section used.
-        /// </summary>
-        private const string AuthorizedKey = "__authorizedKey";
-
-        /// <summary>
-        ///     Config.
-        /// </summary>
-        private readonly FnConfig _config;
-
-        /// <summary>
-        ///     Setting server.
-        /// </summary>
-        private readonly FnSettingServer _settingServer;
-
-        /// <summary>
-        ///     Setting client.
-        /// </summary>
-        private readonly FnSettingClient _settingClient;
-
-        /// <summary>
-        ///     Callback.
-        /// </summary>
-        private readonly IFnCallback _callback;
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="config">config</param>
-        /// <param name="settingServer">setting server</param>
-        /// <param name="settingClient">setting client</param>
-        /// <param name="callback">callback</param>
-        internal FnTcpCallback(FnConfig config, FnSettingServer settingServer, FnSettingClient settingClient,
-            IFnCallback callback)
+        // authorization
+        if (_config.EnableAuthorization())
         {
-            _config = config;
-            _settingServer = settingServer;
-            _settingClient = settingClient;
-            _callback = callback;
-        }
-
-        /// <summary>
-        ///     On open.
-        /// </summary>
-        /// <param name="session">session</param>
-        public override void OnOpen(PsSession session)
-        {
-            // timeout
-            session.ChangeIdleMilliSeconds(_settingClient.TcpTimeout * 1000);
-
-            // authorization
-            if (_config.EnableAuthorization())
+            var authorized = session.GetValue<bool>(AuthorizedKey);
+            if (!authorized)
             {
-                // handshake - send HELO
-                var helo = new FnMsgpackOutHelo(_config.Nonce!, null, _config.KeepAlive);
-                FnLogger.Debug(() => $"Send 'HELO': {MessagePackSerializer.SerializeToJson(helo)}");
-                session.Send(MessagePackSerializer.Serialize(helo));
-            }
-        }
-
-        /// <summary>
-        ///     On message.
-        /// </summary>
-        /// <param name="session">session</param>
-        /// <param name="message">message</param>
-        public override void OnMessage(PsSession session, byte[] message)
-        {
-            // get stored count from session
-            int storedCount = session.GetValue<int>(TmpStoredCount);
-
-            // get stored message from session
-            var newMessage = session.GetValue<byte[]>(TmpStoredKey);
-            if (newMessage != null)
-            {
-                message = newMessage.FxConcat(message);
-            }
-
-            // authorization
-            if (_config.EnableAuthorization())
-            {
-                var authorized = session.GetValue<bool>(AuthorizedKey);
-                if (!authorized)
+                // handshake - receive PING
+                if (!FnMsgpackParser.TryParseForPing(message, out var ping))
                 {
-                    // handshake - receive PING
-                    if (!FnMsgpackParser.TryParseForPing(message, out var ping))
-                    {
-                        // stored to session
-                        session.SetValue(TmpStoredKey, message);
-                        session.SetValue(TmpStoredCount, ++storedCount);
+                    // stored to session
+                    session.SetValue(TmpStoredKey, message);
+                    session.SetValue(TmpStoredCount, ++storedCount);
 
-                        // close session 
-                        if (storedCount > HandshakeMaxStoredCount)
-                        {
-                            session.Close();
-                        }
+                    // close session 
+                    if (storedCount > HandshakeMaxStoredCount) session.Close();
 
-                        return;
-                    }
-                    
-                    // clear session
-                    session.ClearValue(TmpStoredKey);
-                    session.ClearValue(TmpStoredCount);
-
-                    // check digest
-                    var authResult = true;
-                    var reason = string.Empty;
-                    if (!_config.CheckDigest(ping!))
-                    {
-                        authResult = false;
-                        reason = "Illegal";
-                    }
-                    session.SetValue(AuthorizedKey, authResult);
-                    
-                    // handshake - send PONG
-                    var pong = new FnMsgpackOutPong()
-                    {
-                        AuthResult = authResult,
-                        ServerHostname = _config.ServerHostname,
-                        Reason = reason,
-                        SharedKeyHexdigest = _config.CreateDigest(ping!)
-                    };
-                    session.Send(MessagePackSerializer.Serialize(pong));
-                    FnLogger.Debug(() => $"Send 'PONG': {MessagePackSerializer.SerializeToJson(pong)}");
-                    
-                    // handshake - keep connection or disconnect
-                    if (!authResult)
-                    {
-                        session.Close();
-                    }
-                    
                     return;
                 }
-            }
-
-            // receive message
-            if (!FnMsgpackParser.TryParseForMessage(message, out var msg))
-            {
-                // stored to session
-                session.SetValue(TmpStoredKey, message);
-                session.SetValue(TmpStoredCount, ++storedCount);
 
                 // clear session
-                if (storedCount > _settingServer.TcpMaxStoredCount)
+                session.ClearValue(TmpStoredKey);
+                session.ClearValue(TmpStoredCount);
+
+                // check digest
+                var authResult = true;
+                var reason = string.Empty;
+                if (!_config.CheckDigest(ping!))
                 {
-                    session.ClearValue(TmpStoredKey);
-                    session.ClearValue(TmpStoredCount);
+                    authResult = false;
+                    reason = "Illegal";
                 }
+
+                session.SetValue(AuthorizedKey, authResult);
+
+                // handshake - send PONG
+                var pong = new FnMsgpackOutPong
+                {
+                    AuthResult = authResult,
+                    ServerHostname = _config.ServerHostname,
+                    Reason = reason,
+                    SharedKeyHexdigest = _config.CreateDigest(ping!)
+                };
+                await session.SendAsync(MessagePackSerializer.Serialize(pong));
+                FnLogger.Debug(() => $"Send 'PONG': {MessagePackSerializer.SerializeToJson(pong)}");
+
+                // handshake - keep connection or disconnect
+                if (!authResult) session.Close();
 
                 return;
             }
+        }
+
+        // receive message
+        if (!FnMsgpackParser.TryParseForMessage(message, out var msg))
+        {
+            // stored to session
+            session.SetValue(TmpStoredKey, message);
+            session.SetValue(TmpStoredCount, ++storedCount);
 
             // clear session
-            session.ClearValue(TmpStoredKey);
-            session.ClearValue(TmpStoredCount);
-
-            // callback
-            if (msg!.Entries != null && msg.Entries.Any())
+            if (storedCount > _settingServer.TcpMaxStoredCount)
             {
-                try
-                {
-                    // receive
-                    _callback.Receive(msg.Tag, msg.Entries);
-                }
-                catch (Exception e)
-                {
-                    FnLogger.Error(e);
-                }
+                session.ClearValue(TmpStoredKey);
+                session.ClearValue(TmpStoredCount);
             }
 
-            // send ack
-            if (_config.RequireAck && msg is { Option: { Chunk: { } } })
-            {
-                try
-                {
-                    var res = new FnMsgpackOutAck
-                    {
-                        Ack = msg.Option.Chunk
-                    };
-                    session.Send(MessagePackSerializer.Serialize(res));
-                    FnLogger.Debug(() => $"Ack:{res.Ack}");
-                }
-                catch (Exception e)
-                {
-                    FnLogger.Error(e);
-                }
-            }
+            return;
         }
 
-        /// <summary>
-        ///     On close.
-        /// </summary>
-        /// <param name="session">session</param>
-        /// <param name="closeReason">close reason</param>
-        public override void OnClose(PsSession session, PsCloseReason closeReason)
-        {
-            FnLogger.Debug(() => $"OnClose session:{session}, closeReason:{closeReason}");
-        }
+        // clear session
+        session.ClearValue(TmpStoredKey);
+        session.ClearValue(TmpStoredCount);
+
+        // callback
+        if (msg!.Entries != null && msg.Entries.Any())
+            try
+            {
+                // receive
+                await _callback.ReceiveAsync(msg.Tag, msg.Entries);
+            }
+            catch (Exception e)
+            {
+                FnLogger.Error(e);
+            }
+
+        // send ack
+        if (_config.RequireAck && msg is {Option: {Chunk: not null}})
+            try
+            {
+                var res = new FnMsgpackOutAck
+                {
+                    Ack = msg.Option.Chunk
+                };
+                await session.SendAsync(MessagePackSerializer.Serialize(res));
+                FnLogger.Debug(() => $"Ack:{res.Ack}");
+            }
+            catch (Exception e)
+            {
+                FnLogger.Error(e);
+            }
     }
 
     /// <summary>
-    ///     Udp callback.
+    ///     Async on close.
     /// </summary>
-    internal class FnUdpCallback : OcCallback
+    /// <param name="session">session</param>
+    /// <param name="closeReason">close reason</param>
+    public override Task OnCloseAsync(PsSession session, PsCloseReason closeReason)
     {
-        /// <summary>
-        ///     Config.
-        /// </summary>
-        private readonly FnConfig _config;
+        FnLogger.Debug(() => $"OnClose session:{session}, closeReason:{closeReason}");
+        return Task.CompletedTask;
+    }
+}
 
-        /// <summary>
-        ///     Setting client.
-        /// </summary>
-        private readonly FnSettingClient _settingClient;
+/// <summary>
+///     Udp callback.
+/// </summary>
+internal class FnUdpCallback : OcCallback
+{
+    /// <summary>
+    ///     Config.
+    /// </summary>
+    private readonly FnConfig _config;
 
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="config">config</param>
-        /// <param name="settingClient">setting client</param>
-        internal FnUdpCallback(FnConfig config, FnSettingClient settingClient)
+    /// <summary>
+    ///     Setting client.
+    /// </summary>
+    private readonly FnSettingClient _settingClient;
+
+    /// <summary>
+    ///     Constructor.
+    /// </summary>
+    /// <param name="config">config</param>
+    /// <param name="settingClient">setting client</param>
+    internal FnUdpCallback(FnConfig config, FnSettingClient settingClient)
+    {
+        _config = config;
+        _settingClient = settingClient;
+    }
+
+    /// <summary>
+    ///     Async incoming.
+    /// </summary>
+    /// <param name="remote">remote</param>
+    /// <param name="message">message</param>
+    public override async Task IncomingAsync(OcRemote remote, byte[] message)
+    {
+        // timeout
+        remote.ChangeIdleMilliSeconds(_settingClient.UdpTimeout * 1000);
+
+        // heartbeat - receive MAY
+        if (message.Length == 0 || message[0] != 0x00)
         {
-            _config = config;
-            _settingClient = settingClient;
+            FnLogger.Debug(() => "Illegal heartbeat.");
+            return;
         }
 
-        /// <summary>
-        ///     Incoming.
-        /// </summary>
-        /// <param name="remote">remote</param>
-        /// <param name="message">message</param>
-        public override void Incoming(OcRemote remote, byte[] message)
-        {
-            // timeout
-            remote.ChangeIdleMilliSeconds(_settingClient.UdpTimeout * 1000);
-
-            // heartbeat - receive MAY
-            if (message.Length == 0 || message[0] != 0x00)
-            {
-                FnLogger.Debug(() => $"Illegal heartbeat.");
-                return;
-            }
-
-            // heartbeat - send SHOULD
-            remote.Send(message);
-        }
+        // heartbeat - send SHOULD
+        await remote.SendAsync(message);
     }
 }

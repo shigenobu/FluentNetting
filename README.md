@@ -32,6 +32,8 @@ This library is supported for both fluentd and fluent-bit.
 
 ##### callback
 
+(sync)  
+
     public class ExampleCallback : IFnCallback
     {
         public void Receive(string tag, List<FnMessageEntry> entries)
@@ -39,6 +41,30 @@ This library is supported for both fluentd and fluent-bit.
             Console.WriteLine($"tag:{tag}, entries:[{string.Join(", ", entries.Select(e => $"{{{e}}}"))}]");
         }
     }
+
+(async)  
+
+    public class ExampleCallback : IFnCallback
+    {
+        public Task ReceiveAsync(string tag, List<FnMessageEntry> entries)
+        {
+            Console.WriteLine($"tag:{tag}, entries:[{string.Join(", ", entries.Select(e => $"{{{e}}}"))}]");
+            return Task.CompletedTask;
+        }
+    }
+
+'Receive' method is disallow async override.  
+If you use 'async', override 'ReceiveAsync'.  
+'ReceiveAsync' method's contents is below at default.  
+
+    public Task ReceiveAsync(string tag, List<FnMessageEntry> entries)
+    {
+        Receive(tag, entries);
+        return Task.CompletedTask;
+    }
+
+If 'Receive' and 'ReceiveAsync' are both overriden,  
+Call only 'ReceiveAsync'.  
 
 ##### server
 
