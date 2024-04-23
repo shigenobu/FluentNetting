@@ -31,6 +31,11 @@ public class FnSettingServer
     public int TcpReadBufferSize { get; set; } = 1024 * 1024;
 
     /// <summary>
+    ///     Tcp receive buffer size, default 128MiB.
+    /// </summary>
+    public int TcpReceiveBufferSize { get; set; } = 1024 * 1024 * 128;
+
+    /// <summary>
     ///     Tcp max stored count, default 3.
     /// </summary>
     public int TcpMaxStoredCount { get; set; } = 3;

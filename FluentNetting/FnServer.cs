@@ -81,7 +81,8 @@ public class FnServer
             Port = SettingServer.BindPort,
             Backlog = SettingServer.TcpBackLog,
             Divide = SettingServer.TcpDivide,
-            ReadBufferSize = SettingServer.TcpReadBufferSize
+            ReadBufferSize = SettingServer.TcpReadBufferSize,
+            ReceiveBufferSize = SettingServer.TcpReceiveBufferSize
         };
         _tcpServer.Start();
 
