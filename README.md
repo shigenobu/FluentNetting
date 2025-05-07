@@ -3,12 +3,13 @@
 [![nuget](https://badgen.net/nuget/v/FluentNetting/latest)](https://www.nuget.org/packages/FluentNetting/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-![Icon_64.png](https://raw.githubusercontent.com/shigenobu/FluentNetting/master/FluentNetting/Icon/Icon_64.png?token=GHSAT0AAAAAABPXY7W2PHLTUKFDLX7CJZX2YO72PVQ)
+![Icon_64.png](https://raw.githubusercontent.com/shigenobu/FluentNetting/master/FluentNetting/Icon/Icon_64.png)
 
 ### feature
 
-'FluentNetting' is fluent forwarding message received server that is based on [Fluent forward protocol v1 specification](https://github.com/fluent/fluentd/wiki/Forward-Protocol-Specification-v1).  
-This library is supported for both fluentd and fluent-bit.  
+'FluentNetting' is fluent forwarding message received server that is based
+on [Fluent forward protocol v1 specification](https://github.com/fluent/fluentd/wiki/Forward-Protocol-Specification-v1).  
+This library is supported for both fluentd and fluent-bit.
 
 ### supported message mode (format)
 
@@ -17,32 +18,21 @@ This library is supported for both fluentd and fluent-bit.
 * PackedForward Mode
 * CompressedPackedForward Mode
 
-### supported configuration  
+### supported configuration
 
-* Security forwarding authorization, `HELO`, `PING` and `PONG` (not tls, not username/password, only self_hostname/shared_key).
+* Security forwarding authorization, `HELO`, `PING` and `PONG` (not tls, not username/password, only
+  self_hostname/shared_key).
 * Udp heartbeat.
 
 ---
 
 ### how to use
 
-(data flow)  
+(data flow)
 
-    client ---(forward)---> fluend or fluent-bit ---(forward)---> server used by FluentNetting
+    client ---(forward)---> fluentd or fluent-bit ---(forward)---> server used by FluentNetting
 
 ##### callback
-
-(sync)  
-
-    public class ExampleCallback : IFnCallback
-    {
-        public void Receive(string tag, List<FnMessageEntry> entries)
-        {
-            Console.WriteLine($"tag:{tag}, entries:[{string.Join(", ", entries.Select(e => $"{{{e}}}"))}]");
-        }
-    }
-
-(async)  
 
     public class ExampleCallback : IFnCallback
     {
@@ -52,19 +42,6 @@ This library is supported for both fluentd and fluent-bit.
             return Task.CompletedTask;
         }
     }
-
-'Receive' method is disallow async override.  
-If you use 'async', override 'ReceiveAsync'.  
-'ReceiveAsync' method's contents is below at default.  
-
-    public Task ReceiveAsync(string tag, List<FnMessageEntry> entries)
-    {
-        Receive(tag, entries);
-        return Task.CompletedTask;
-    }
-
-If 'Receive' and 'ReceiveAsync' are both overriden,  
-Call only 'ReceiveAsync'.  
 
 ##### server
 
@@ -80,9 +57,9 @@ Call only 'ReceiveAsync'.
     server.Start();
     server.WaitFor();
 
-##### fluent configuration (fluentd or fluent-bit in a same host)
+##### fluent configuration (fluentd or fluent-bit in the same host)
 
-(fluentd)  
+(fluentd)
 
     <source>
       @type forward
@@ -111,7 +88,7 @@ Call only 'ReceiveAsync'.
       flush_interval 1m
     </match>
 
-(fluent-bit)  
+(fluent-bit)
 
     [SERVICE]
         Flush         5
@@ -137,7 +114,7 @@ Call only 'ReceiveAsync'.
 
 ##### client - csharp used by Pigeon (highly recommend)
 
-[Pigeon](https://www.nuget.org/packages/Pigeon/)  
+[Pigeon](https://www.nuget.org/packages/Pigeon/)
 
     var config = new PigeonConfig("localhost", 24224);
     var clientPigeon = new PigeonClient(config);
@@ -148,7 +125,7 @@ Call only 'ReceiveAsync'.
 
 ##### client - csharp used by Serilog
 
-[Serilog](https://www.nuget.org/packages/Serilog.Sinks.Fluentd/)  
+[Serilog](https://www.nuget.org/packages/Serilog.Sinks.Fluentd/)
 
     var options = new FluentdSinkOptions(
         "localhost", 24224, "tag.example1");
@@ -157,7 +134,7 @@ Call only 'ReceiveAsync'.
 
 ##### client - csharp used by FluentdClient.Sharp
 
-[FluentdClient.Sharp](https://www.nuget.org/packages/FluentdClient.Sharp/)  
+[FluentdClient.Sharp](https://www.nuget.org/packages/FluentdClient.Sharp/)
 
     using (var client = new FluentdClient.Sharp.FluentdClient(
                "localhost", 24224, new CustomMessagePackSerializer()))
@@ -167,7 +144,7 @@ Call only 'ReceiveAsync'.
             new Dictionary<string, object> {["hello"] = "world3"});
     }
 
-In detail, confirm [example](https://github.com/shigenobu/FluentNetting/blob/master/FluentNetting.Examples/Program.cs).  
+In detail, confirm [example](https://github.com/shigenobu/FluentNetting/blob/master/FluentNetting.Examples/Program.cs).
 
 ---
 

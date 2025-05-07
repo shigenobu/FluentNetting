@@ -32,12 +32,8 @@ public class FnServer
     ///     Constructor.
     /// </summary>
     /// <param name="callback">callback</param>
-    /// <exception cref="NotSupportedException">exception for sync callback set to async</exception>
     public FnServer(IFnCallback callback)
     {
-        if (IFnCallback.ContainsAsync(callback))
-            throw new NotSupportedException(
-                $"Disallow async override at {string.Join(',', IFnCallback.SynchronousMethodNames.ToArray())} in {callback.GetType().FullName}, use 'xxxAsync' alternatively.");
         _callback = callback;
     }
 
@@ -74,8 +70,7 @@ public class FnServer
         SettingClient ??= new FnSettingClient();
 
         // tcp server
-        _tcpServer ??= new PsServer(new FnTcpCallback(Config, SettingServer, SettingClient, _callback)
-            {UseAsyncCallback = true})
+        _tcpServer ??= new PsServer(new FnTcpCallback(Config, SettingServer, SettingClient, _callback))
         {
             Host = SettingServer.BindHost,
             Port = SettingServer.BindPort,
@@ -87,7 +82,7 @@ public class FnServer
         _tcpServer.Start();
 
         // udp server
-        _udpServer ??= new OcLocal(new OcBinder(new FnUdpCallback(Config, SettingClient) {UseAsyncCallback = true})
+        _udpServer ??= new OcLocal(new OcBinder(new FnUdpCallback(Config, SettingClient))
         {
             BindHost = SettingServer.BindHost,
             BindPort = SettingServer.BindPort,

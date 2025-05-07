@@ -32,7 +32,7 @@ public class FnEventModeResolver : IFormatterResolver
 
 internal static class FnEventModeResolverGetFormatterHelper
 {
-    private static readonly Dictionary<Type, object> formatterMap = new()
+    private static readonly Dictionary<Type, object> FormatterMap = new()
     {
         {typeof(BaseFnEventMode), new FnEventModeFormatter()},
         {typeof(FnMessageMode), new FnMessageModeFormatter()},
@@ -43,12 +43,11 @@ internal static class FnEventModeResolverGetFormatterHelper
 
     internal static object GetFormatter(Type t)
     {
-        object formatter;
-        if (formatterMap.TryGetValue(t, out formatter)) return formatter;
+        if (FormatterMap.TryGetValue(t, out var formatter)) return formatter;
 
         if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ValueTuple<,>))
-            return Activator.CreateInstance(typeof(ValueTupleFormatter<,>).MakeGenericType(t.GenericTypeArguments));
+            return Activator.CreateInstance(typeof(ValueTupleFormatter<,>).MakeGenericType(t.GenericTypeArguments))!;
 
-        return null;
+        throw new NullReferenceException($"Not found formatter for {t}");
     }
 }

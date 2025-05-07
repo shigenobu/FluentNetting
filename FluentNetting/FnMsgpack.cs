@@ -69,24 +69,24 @@ public class FnMsgpackOutPong
 {
     [Key(0)] public string Type { get; } = "PONG";
 
-    [Key(1)] public bool AuthResult { get; set; }
+    [Key(1)] public bool AuthResult { get; init; }
 
-    [Key(2)] public string Reason { get; set; }
+    [Key(2)] public string Reason { get; init; } = null!;
 
-    [Key(3)] public string ServerHostname { get; set; }
+    [Key(3)] public string ServerHostname { get; init; } = null!;
 
-    [Key(4)] public string SharedKeyHexdigest { get; set; }
+    [Key(4)] public string SharedKeyHexdigest { get; init; } = null!;
 }
 
 [MessagePackObject]
 public class FnMsgpackOutAck
 {
-    [Key("ack")] public string Ack { get; set; }
+    [Key("ack")] public string Ack { get; init; } = null!;
 }
 
 public abstract class BaseFnEventMode
 {
-    [Key(0)] public string Tag { get; set; }
+    [Key(0)] public string Tag { get; set; } = null!;
 }
 
 [MessagePackObject]
@@ -96,7 +96,7 @@ public class FnMessageMode : BaseFnEventMode
     [MessagePackFormatter(typeof(FnEventTimeFormatter))]
     public DateTimeOffset EventTime { get; set; }
 
-    [Key(2)] public Dictionary<string, object> Record { get; set; }
+    [Key(2)] public Dictionary<string, object> Record { get; set; } = null!;
 
     [Key(3)] public Dictionary<string, object>? Option { get; set; }
 
@@ -141,13 +141,13 @@ public class FnEntry
     [MessagePackFormatter(typeof(FnEventTimeFormatter))]
     public DateTimeOffset EventTime { get; set; }
 
-    [Key(1)] public Dictionary<string, object> Record { get; set; }
+    [Key(1)] public Dictionary<string, object> Record { get; set; } = null!;
 }
 
 [MessagePackObject]
 public class FnForwardMode : BaseFnEventMode
 {
-    [Key(1)] public List<FnEntry> Entries { get; set; }
+    [Key(1)] public List<FnEntry> Entries { get; set; } = null!;
 
     [Key(2)] public Dictionary<string, object>? Option { get; set; }
 
@@ -190,7 +190,7 @@ public class FnPackedForwardMode : BaseFnEventMode
 {
     [Key(1)]
     [MessagePackFormatter(typeof(FnEventStreamFormatter))]
-    public List<FnEntry> Entries { get; set; }
+    public List<FnEntry> Entries { get; set; } = null!;
 
     [Key(2)] public Dictionary<string, object>? Option { get; set; }
 
@@ -233,7 +233,7 @@ public class FnCompressedPackedForwardMode : BaseFnEventMode
 {
     [Key(1)]
     [MessagePackFormatter(typeof(FnCompressedEventStreamFormatter))]
-    public List<FnEntry> Entries { get; set; }
+    public List<FnEntry> Entries { get; set; } = null!;
 
     [Key(2)]
     public Dictionary<string, object> Option { get; set; } =

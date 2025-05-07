@@ -1,21 +1,20 @@
 ﻿using MessagePack;
 using MessagePack.Formatters;
 
-namespace FluentNetting.Formatters
+namespace FluentNetting.Formatters;
+
+public sealed class FnPackedForwardModeFormatter : IMessagePackFormatter<FnPackedForwardMode>
 {
-    public sealed class FnPackedForwardModeFormatter : IMessagePackFormatter<FnPackedForwardMode>
+    private static readonly FnEventModeFormatter EventModeFormatter = new();
+
+    public void Serialize(ref MessagePackWriter writer, FnPackedForwardMode value,
+        MessagePackSerializerOptions options)
     {
-        private static readonly FnEventModeFormatter EventModeFormatter = new();
+        EventModeFormatter.Serialize(ref writer, value, options);
+    }
 
-        public void Serialize(ref MessagePackWriter writer, FnPackedForwardMode value,
-            MessagePackSerializerOptions options)
-        {
-            EventModeFormatter.Serialize(ref writer, value, options);
-        }
-
-        public FnPackedForwardMode Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
-        {
-            return (FnPackedForwardMode) EventModeFormatter.Deserialize(ref reader, options);
-        }
+    public FnPackedForwardMode Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
+    {
+        return (FnPackedForwardMode) EventModeFormatter.Deserialize(ref reader, options);
     }
 }
